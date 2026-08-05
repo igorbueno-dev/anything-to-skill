@@ -6,6 +6,8 @@ import shutil
 from pathlib import Path
 
 from .intake import Source
+from .chunk import chunk_markdown
+from .resolve import build_anchor_index, nearest_anchor
 
 
 def _slug(text: str) -> str:
@@ -46,13 +48,19 @@ def emit_skill(graph_path: Path, sources: list[Source],
     (out_dir / "content").mkdir(parents=True, exist_ok=True)
     (out_dir / ".graph").mkdir(parents=True, exist_ok=True)
 
-    # 1. content/ verbatim
+    # 1. content/ verbatim (fidelidade byte-a-byte) + fatiar em blocos endereçáveis
+    blocks_by_source: dict[str, list] = {}
     for f in sorted(Path(content_dir).iterdir()):
         if f.is_file():
             shutil.copy2(f, out_dir / "content" / f.name)
+            text = f.read_text(encoding="utf-8", errors="replace")
+            blocks_by_source[f.stem] = chunk_markdown(text, f.stem)
 
-    # 2. .graph/graph.json
+    # 2. .graph/graph.json + índice de âncoras (endereçamento)
     shutil.copy2(graph_path, out_dir / ".graph" / "graph.json")
+    (out_dir / ".graph" / "anchors.json").write_text(
+        json.dumps(build_anchor_index(blocks_by_source), indent=2, ensure_ascii=False),
+        encoding="utf-8")
 
     # 3. sections/ — uma por comunidade
     theme_rows = []
@@ -65,7 +73,8 @@ def emit_skill(graph_path: Path, sources: list[Source],
             n = nodes.get(nid, {})
             loc = n.get("source_location")
             sid = _source_id_for(n.get("source_file"), sources)
-            cite = f"[{sid}·{loc}]" if loc else f"[{sid}]"
+            anchor = nearest_anchor(blocks_by_source.get(sid, []), loc)
+            cite = f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
             lines.append(f"- {n.get('label', nid)} {cite}")
         (out_dir / "sections" / f"{slug}.md").write_text(
             "\n".join(lines) + "\n", encoding="utf-8")
