@@ -1,0 +1,23 @@
+# Design / metodologia — local apenas, nunca versionar
+.design/
+
+# Saídas de build de skills geradas
+.graph/
+.qa/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
