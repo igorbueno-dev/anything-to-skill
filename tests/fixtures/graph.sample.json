@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {"id": "s1_fewshot", "label": "Few-shot prompting", "file_type": "concept",
+     "source_file": "S1.md", "source_location": "S1#L3", "source_url": null,
+     "captured_at": null, "author": null, "contributor": null},
+    {"id": "s1_cot", "label": "Chain of thought", "file_type": "concept",
+     "source_file": "S1.md", "source_location": "S1#L7", "source_url": null,
+     "captured_at": null, "author": null, "contributor": null}
+  ],
+  "edges": [],
+  "communities": {"0": ["s1_fewshot"], "1": ["s1_cot"]},
+  "labels": {"0": "Few-shot prompting", "1": "Chain of thought"}
+}
