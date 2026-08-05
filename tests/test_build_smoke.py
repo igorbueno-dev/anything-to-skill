@@ -26,6 +26,15 @@ def test_build_produces_valid_skill_folder(tmp_path):
     out = build_skill([src], tmp_path / "work", tmp_path / "skill",
                       extractor=fake_extractor)
     assert (out / "SKILL.md").exists()
-    assert (out / "content" / "sample.md").exists()
+    # conteúdo normalizado é renomeado por fonte
+    assert (out / "content" / "S1.md").exists()
     assert (out / ".graph" / "graph.json").exists()
     assert any((out / "sections").glob("*.md"))
+
+
+def test_build_normalizes_pdf(tmp_path):
+    pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
+    out = build_skill([pdf], tmp_path / "work", tmp_path / "skill",
+                      extractor=fake_extractor)
+    assert (out / "content" / "S1.md").exists()
+    assert any((out / "figures").glob("*.png"))

@@ -21,6 +21,19 @@ def _node_index(graph: dict) -> dict[str, dict]:
     return {n["id"]: n for n in graph.get("nodes", [])}
 
 
+def _source_id_for(source_file: str | None, sources: list[Source]) -> str:
+    """Resolve o ID da fonte (S1..Sn) a partir do source_file de um nó.
+    Conteúdo normalizado se chama `{Sn}.md`, então o stem já é o ID; caso
+    contrário, casa pelo nome do arquivo original."""
+    if not source_file:
+        return "S?"
+    stem = Path(source_file).stem
+    if re.fullmatch(r"S\d+", stem):
+        return stem
+    return next((s.id for s in sources
+                 if Path(s.origin).name == source_file), "S?")
+
+
 def emit_skill(graph_path: Path, sources: list[Source],
                content_dir: Path, out_dir: Path) -> Path:
     graph = _load_graph(graph_path)
@@ -51,8 +64,7 @@ def emit_skill(graph_path: Path, sources: list[Source],
         for nid in node_ids:
             n = nodes.get(nid, {})
             loc = n.get("source_location")
-            sid = next((s.id for s in sources
-                        if Path(s.origin).name == n.get("source_file")), "S?")
+            sid = _source_id_for(n.get("source_file"), sources)
             cite = f"[{sid}·{loc}]" if loc else f"[{sid}]"
             lines.append(f"- {n.get('label', nid)} {cite}")
         (out_dir / "sections" / f"{slug}.md").write_text(
