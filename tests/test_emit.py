@@ -31,6 +31,21 @@ def test_emits_router_sections_and_preserves_content(tmp_path):
     assert "S1" in (out / "sources.md").read_text(encoding="utf-8")
 
 
+def test_emitter_uses_profile_and_cross_index(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# PE\n\nAbstract\nEstudo.\nReferences\n[1] x et al.\n",
+                                   encoding="utf-8")
+    sources = [Source(id="S1", title="PE", kind="md", origin="/abs/S1.md", profile="paper")]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    sec = next((out / "sections").glob("*.md")).read_text(encoding="utf-8")
+    assert "## Achados" in sec  # template de paper
+    assert (out / "glossary.md").exists()
+    smd = (out / "sources.md").read_text(encoding="utf-8")
+    assert "Temas" in smd and "S1" in smd
+
+
 def test_section_cites_block_anchor(tmp_path):
     content = tmp_path / "content"
     content.mkdir()

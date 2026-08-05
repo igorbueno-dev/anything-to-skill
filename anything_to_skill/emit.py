@@ -5,9 +5,12 @@ import re
 import shutil
 from pathlib import Path
 
+from collections import Counter
+
 from .intake import Source
 from .chunk import chunk_markdown
 from .resolve import build_anchor_index, nearest_anchor
+from .templates import render_section
 
 
 def _slug(text: str) -> str:
@@ -62,22 +65,47 @@ def emit_skill(graph_path: Path, sources: list[Source],
         json.dumps(build_anchor_index(blocks_by_source), indent=2, ensure_ascii=False),
         encoding="utf-8")
 
-    # 3. sections/ — uma por comunidade
+    # 3. sections/ — uma por comunidade, template do perfil dominante
+    profile_by_sid = {s.id: (s.profile or "article") for s in sources}
     theme_rows = []
+    theme_by_sid: dict[str, set[str]] = {}
     for cid, node_ids in communities.items():
         theme = labels.get(str(cid), f"Tema {cid}")
         slug = _slug(theme)
         theme_rows.append((theme, slug))
-        lines = [f"# {theme}", ""]
+        items = []
+        theme_profiles = []
         for nid in node_ids:
             n = nodes.get(nid, {})
             loc = n.get("source_location")
             sid = _source_id_for(n.get("source_file"), sources)
             anchor = nearest_anchor(blocks_by_source.get(sid, []), loc)
             cite = f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
-            lines.append(f"- {n.get('label', nid)} {cite}")
+            items.append({"label": n.get("label", nid), "citation": cite})
+            if sid in profile_by_sid:
+                theme_profiles.append(profile_by_sid[sid])
+                theme_by_sid.setdefault(sid, set()).add(theme)
+        profile = Counter(theme_profiles).most_common(1)[0][0] if theme_profiles else "article"
         (out_dir / "sections" / f"{slug}.md").write_text(
-            "\n".join(lines) + "\n", encoding="utf-8")
+            render_section(profile, theme, items), encoding="utf-8")
+
+    # 3b. glossary.md — conceitos alfabetizados, ancorados
+    gloss = sorted(
+        (n for n in graph.get("nodes", []) if n.get("file_type") in {"concept", "rationale"}),
+        key=lambda n: (n.get("label") or "").lower())
+    glines = ["# Glossário", ""]
+    for n in gloss:
+        sid = _source_id_for(n.get("source_file"), sources)
+        anchor = nearest_anchor(blocks_by_source.get(sid, []), n.get("source_location"))
+        cite = f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
+        glines.append(f"- **{n.get('label')}** {cite}")
+    (out_dir / "glossary.md").write_text("\n".join(glines) + "\n", encoding="utf-8")
+
+    # 3c. cheatsheet.md — só quando algum perfil pede referência rápida
+    if any((s.profile in {"technical_book", "reference"}) for s in sources):
+        (out_dir / "cheatsheet.md").write_text(
+            "# Cheatsheet\n\n_(regras de decisão — a preencher a partir de content/)_\n",
+            encoding="utf-8")
 
     # 4. SKILL.md roteador (roteia, nao resume)
     idx = "\n".join(f"| {t} | `sections/{s}.md` |" for t, s in theme_rows)
@@ -90,10 +118,14 @@ def emit_skill(graph_path: Path, sources: list[Source],
     )
     (out_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
 
-    # 5. sources.md
+    # 5. sources.md — registro + índice cruzado tema↔fonte
     src_lines = ["# Fontes", ""]
     for s in sources:
-        src_lines.append(f"- **{s.id}** — {s.title} ({s.kind}) — `{s.origin}`")
+        prof = f" · perfil: {s.profile}" if s.profile else ""
+        src_lines.append(f"- **{s.id}** — {s.title} ({s.kind}){prof} — `{s.origin}`")
+        temas = sorted(theme_by_sid.get(s.id, set()))
+        if temas:
+            src_lines.append(f"  - Temas: {', '.join(temas)}")
     (out_dir / "sources.md").write_text("\n".join(src_lines) + "\n", encoding="utf-8")
 
     return out_dir
