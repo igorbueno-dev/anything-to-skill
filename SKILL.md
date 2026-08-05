@@ -18,8 +18,7 @@ tema, com o texto-fonte completo consultável e cada afirmação rastreável at�
 
 1. **Resolver inputs.** Por ora: arquivos markdown locais (PDF/URL/texto vêm nos planos 2+).
 2. **Extração semântica.** Para cada arquivo de conteúdo, extrair um fragmento de grafo
-   de conhecimento seguindo o schema de
-   `~/.claude/skills/graphify/references/extraction-spec.md`
+   de conhecimento seguindo o schema próprio em `references/extraction_spec.md`
    (nós com `id`, `label`, `file_type`, `source_file`, `source_location`).
    Em Claude Code, despachar um subagente `general-purpose` por chunk com aquele prompt,
    OU — para um corpus pequeno — extrair inline você mesmo (o host é o LLM).

@@ -49,12 +49,6 @@ def nuance_flags(section_md: str, source_text: str) -> list[str]:
 
 
 def security_scan(out_dir: Path) -> list[str]:
-    try:
-        from graphify import security  # reuso se disponível
-        if hasattr(security, "scan_path"):
-            return list(security.scan_path(str(out_dir)) or [])
-    except Exception:
-        pass
     findings: list[str] = []
     pat = re.compile(r"AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]+PRIVATE KEY-----|ghp_[A-Za-z0-9]{36}")
     for f in Path(out_dir).rglob("*.md"):

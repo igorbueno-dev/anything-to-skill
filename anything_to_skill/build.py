@@ -11,6 +11,7 @@ from .emit import emit_skill
 from .qa import assess, write_qa_report
 from .profiles import classify
 from .verify import verify_skill
+from .kg import detect, build_graph, cluster, export_graph
 
 Extractor = Callable[[dict, Path], dict]
 
@@ -42,11 +43,6 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
         for img in doc.images:
             all_images.append((src.id, img))
 
-    from graphify.detect import detect
-    from graphify.build import build_from_json
-    from graphify.cluster import cluster
-    from graphify.export import to_json
-
     detect_result = detect(content)
     extraction = extractor(detect_result, content)
 
@@ -60,11 +56,11 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
         extraction["edges"] = [e for e in extraction.get("edges", [])
                                if e.get("source") in kept_ids and e.get("target") in kept_ids]
 
-    G = build_from_json(extraction, root=str(content), directed=False)
+    G = build_graph(extraction, directed=False)
     communities = cluster(G)
 
     graph_path = work_dir / "graph.json"
-    to_json(G, communities, str(graph_path))
+    export_graph(G, communities, graph_path)
 
     graph = json.loads(graph_path.read_text(encoding="utf-8"))
     graph["communities"] = {str(k): list(v) for k, v in communities.items()}

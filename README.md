@@ -28,7 +28,7 @@ Skills que convertem um documento numa referência consultável costumam ter tr�
 
 ## Como funciona
 
-O anything-to-skill usa o motor de grafo de conhecimento da [graphify](https://github.com/safishamsi/graphify) para extração com proveniência e detecção de comunidades, e adiciona camadas próprias de qualidade e um emissor de skill:
+O anything-to-skill é **autossuficiente**: tem motor próprio de grafo de conhecimento (sobre [`networkx`](https://networkx.org/)) para montar o grafo, detectar comunidades e serializar, mais as camadas de qualidade e o emissor de skill. Não depende de outras skills.
 
 ```
 entrada (arquivos / URLs / texto)
@@ -36,9 +36,9 @@ entrada (arquivos / URLs / texto)
    ├─ [0] intake & registro de fontes ....... IDs estáveis + fencing de URL
    ├─ [1] normalização → Markdown ........... preserva imagens do PDF
    ├─ [2] classificação de perfil ........... paper / artigo / livro / transcrição / referência
-   ├─ [3] extração com proveniência ......... nós com source_location (graphify)
+   ├─ [3] extração com proveniência ......... nós com source_location (subagente/inline)
    ├─ [4] portão de QA ...................... detecta lixo; marca/​exclui fontes failed
-   ├─ [5] cluster & síntese ................. temas emergem entre fontes (graphify)
+   ├─ [5] cluster & síntese ................. temas emergem entre fontes (networkx)
    ├─ [6] emissão ........................... roteador + seções + content + âncoras
    └─ [7] verificação ....................... traceabilidade + cite-check + nuance + segurança
    │
@@ -66,7 +66,7 @@ O `SKILL.md` **roteia**, nunca despeja conteúdo: o custo de entrada é mínimo 
 ## Requisitos
 
 - Python **3.11+**
-- [`graphifyy`](https://pypi.org/project/graphifyy/) (motor de extração e grafo)
+- [`networkx`](https://pypi.org/project/networkx/) (grafo e detecção de comunidades)
 - `pymupdf` e `markdownify` (normalização)
 
 ## Instalação
@@ -96,7 +96,7 @@ from pathlib import Path
 from anything_to_skill.build import build_skill
 
 def extractor(detect_result, content_dir):
-    # devolve {"nodes": [...], "edges": [...]} no schema graphify
+    # devolve {"nodes": [...], "edges": [...]} (ver references/extraction_spec.md)
     ...
 
 build_skill([Path("meu_livro.pdf")], Path("work"), Path("minha-skill"),
