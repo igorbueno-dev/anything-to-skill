@@ -10,6 +10,7 @@ from .normalize import normalize
 from .emit import emit_skill
 from .qa import assess, write_qa_report
 from .profiles import classify
+from .verify import verify_skill
 
 Extractor = Callable[[dict, Path], dict]
 
@@ -87,5 +88,14 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
             desc = vision_describe(figures / img.filename) if vision_describe else "(descrição pendente)"
             flines.append(f"- **{img.filename}** (fonte {sid}, pág {img.page}) — {desc}")
         (out_dir / "figures" / "figures.md").write_text("\n".join(flines) + "\n", encoding="utf-8")
+
+    # verificação final: traceabilidade, cite-check, nuance, segurança
+    anchors_path = out_dir / ".graph" / "anchors.json"
+    anchor_index = json.loads(anchors_path.read_text(encoding="utf-8")) if anchors_path.exists() else {}
+    source_texts = {
+        f.stem: f.read_text(encoding="utf-8", errors="replace")
+        for f in (out_dir / "content").glob("*.md")
+    }
+    verify_skill(out_dir, anchor_index, source_texts=source_texts)
 
     return result
