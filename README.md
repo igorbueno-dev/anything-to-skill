@@ -180,6 +180,16 @@ A arquitetura separa lógica determinística (100% coberta por testes) do que pr
 
 **v2 (planejado):** intake via APIs acadêmicas (Semantic Scholar, arXiv, OpenAlex, PubMed) · OCR para PDF escaneado · re-emissão incremental · áudio/vídeo via transcrição · artefato explícito de divergência entre fontes.
 
-## Licença & autoria
+## Direitos autorais
 
-Autor único: **Igor Bueno** (ig.dsbueno@gmail.com). Todos os direitos reservados.
+Copyright © 2026 Igor Bueno. Todos os direitos reservados.
+
+Este é um projeto proprietário. O código-fonte e a documentação são de autoria e propriedade exclusivas de Igor Bueno. A disponibilização pública deste repositório não concede qualquer licença de uso, cópia, modificação ou redistribuição.
+
+Sem autorização prévia e por escrito do autor, é vedado:
+
+- copiar, reproduzir ou distribuir o código, no todo ou em parte;
+- modificar, adaptar ou criar trabalhos derivados;
+- usar o software para fins comerciais ou incorporá-lo a outros produtos.
+
+Para pedidos de licenciamento ou permissões, entre em contato: ig.dsbueno@gmail.com.
