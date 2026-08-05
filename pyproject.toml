@@ -3,7 +3,7 @@ name = "anything-to-skill"
 version = "0.0.1"
 description = "Transforma um corpus de fontes numa skill de Claude Code de alta fidelidade e rastreavel."
 requires-python = ">=3.11"
-dependencies = ["graphifyy"]
+dependencies = ["graphifyy", "pymupdf", "markdownify"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
