@@ -8,8 +8,14 @@ from typing import Callable
 from .intake import register_sources
 from .normalize import normalize
 from .emit import emit_skill
+from .qa import assess, write_qa_report
 
 Extractor = Callable[[dict, Path], dict]
+
+
+def _source_id_of(source_file: str | None) -> str:
+    from pathlib import Path as _P
+    return _P(source_file).stem if source_file else ""
 
 
 def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
@@ -23,9 +29,12 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
 
     # registro a partir dos ORIGINAIS (preserva kind/title), conteúdo normalizado
     sources = register_sources([Path(p) for p in inputs], work_dir)
+    reports = []
     for src, inp in zip(sources, inputs):
         doc = normalize(Path(inp), kind=src.kind, out_images_dir=figures, source_id=src.id)
         (content / f"{src.id}.md").write_text(doc.markdown, encoding="utf-8")
+        reports.append(assess(src.id, doc.markdown,
+                              images_extracted=len(doc.images)))
 
     from graphify.detect import detect
     from graphify.build import build_from_json
@@ -34,6 +43,17 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
 
     detect_result = detect(content)
     extraction = extractor(detect_result, content)
+
+    # fontes 'failed' não alimentam as seções (conteúdo fica pra auditoria no .qa)
+    failed = {r.source_id for r in reports if r.status == "failed"}
+    if failed:
+        kept = [n for n in extraction.get("nodes", [])
+                if _source_id_of(n.get("source_file")) not in failed]
+        kept_ids = {n["id"] for n in kept}
+        extraction["nodes"] = kept
+        extraction["edges"] = [e for e in extraction.get("edges", [])
+                               if e.get("source") in kept_ids and e.get("target") in kept_ids]
+
     G = build_from_json(extraction, root=str(content), directed=False)
     communities = cluster(G)
 
@@ -47,6 +67,9 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
                           encoding="utf-8")
 
     result = emit_skill(graph_path, sources, content, out_dir)
+
+    # trilha de auditoria do QA (sempre presente)
+    write_qa_report(reports, out_dir / ".qa")
 
     # copia figuras extraídas pra pasta-skill final
     figure_files = [f for f in figures.iterdir() if f.is_file()]
