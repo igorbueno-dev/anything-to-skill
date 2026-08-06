@@ -17,6 +17,22 @@ def _extractor(detect_result, content_dir):
     return {"nodes": nodes, "edges": []}
 
 
+def test_coverage_flags_empty_segment(tmp_path):
+    src = tmp_path / "doc.md"
+    src.write_text("# Alpha\n" + ("palavra " * 60) + "\n\n# Beta\n" + ("outra " * 60) + "\n",
+                   encoding="utf-8")
+
+    def extractor(detect_result, content_dir):
+        return {"nodes": [{"id": "n1", "label": "C", "file_type": "concept",
+                           "source_file": "S1.md", "source_location": "S1.md#L2"}],
+                "edges": []}
+
+    out = build_skill([src], tmp_path / "work", tmp_path / "skill", extractor=extractor)
+    cov = (out / "coverage.md").read_text(encoding="utf-8")
+    assert "Alpha" in cov and "Beta" in cov
+    assert "lacuna" in cov.lower()
+
+
 def test_build_writes_report(tmp_path):
     src = tmp_path / "sample.md"
     src.write_text("# Titulo\n\ncorpo do texto\n", encoding="utf-8")

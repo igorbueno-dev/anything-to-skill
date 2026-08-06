@@ -79,6 +79,24 @@ def label_communities(G: nx.Graph, communities: dict[int, list[str]]) -> dict[in
     return labels
 
 
+def add_structure_affinity(G: nx.Graph, node_segments: dict[str, str],
+                           weight: float = 2.0) -> nx.Graph:
+    """Reforça a coesão de unidades estruturais: liga em cadeia os nós de um mesmo
+    segmento (mesmo capítulo/título), para o Louvain não dissolver a unidade num tema
+    maior. Nunca cria aresta entre segmentos diferentes. Cadeia evita clique O(n^2)."""
+    by_seg: dict[str, list[str]] = {}
+    for nid, seg in node_segments.items():
+        if nid in G:
+            by_seg.setdefault(seg, []).append(nid)
+    for nodes in by_seg.values():
+        for u, v in zip(nodes, nodes[1:]):
+            if G.has_edge(u, v):
+                G[u][v]["weight"] = G[u][v].get("weight", 1.0) + weight
+            else:
+                G.add_edge(u, v, weight=weight, relation="mesmo-segmento")
+    return G
+
+
 def export_graph(G: nx.Graph, communities: dict[int, list[str]], path: Path) -> None:
     """Serializa o grafo (nós com atributos + arestas + comunidades) num JSON."""
     nodes = [{"id": nid, **attrs} for nid, attrs in G.nodes(data=True)]
