@@ -122,7 +122,7 @@ def _write_build_report(out_dir, sources, source_meta, reports, extraction, comm
 
 def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
                 *, extractor: Extractor, vision_describe=None, summarize_fn=None,
-                qa_gen_fn=None, answer_fn=None, similar_fn=None) -> Path:
+                qa_gen_fn=None, answer_fn=None, similar_fn=None, fetch_fn=None) -> Path:
     work_dir = Path(work_dir)
     out_dir = Path(out_dir)
     content = work_dir / "content"
@@ -131,13 +131,15 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
     figures.mkdir(parents=True, exist_ok=True)
 
     # registro a partir dos ORIGINAIS (preserva kind/title), conteúdo normalizado
-    sources = register_sources([Path(p) for p in inputs], work_dir)
+    sources = register_sources(list(inputs), work_dir)
     reports = []
     all_images = []  # (source_id, ImageRef)
     source_meta = {}  # src.id -> stats brutas do normalizado
     segments_by_source = {}  # src.id -> list[Segment]
     for src, inp in zip(sources, inputs):
-        doc = normalize(Path(inp), kind=src.kind, out_images_dir=figures, source_id=src.id)
+        src_path = inp if src.kind == "url" else Path(inp)
+        doc = normalize(src_path, kind=src.kind, out_images_dir=figures,
+                        source_id=src.id, fetch_fn=fetch_fn)
         (content / f"{src.id}.md").write_text(doc.markdown, encoding="utf-8")
         src.profile = classify(doc.markdown, src.kind)
         reports.append(assess(src.id, doc.markdown,

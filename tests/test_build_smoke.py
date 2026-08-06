@@ -32,6 +32,14 @@ def test_build_produces_valid_skill_folder(tmp_path):
     assert any((out / "sections").glob("*.md"))
 
 
+def test_build_from_url(tmp_path):
+    html = "<html><body><article><h1>Guia</h1><p>conteudo do guia</p></article></body></html>"
+    out = build_skill(["https://exemplo.com/guia"], tmp_path / "work", tmp_path / "skill",
+                      extractor=fake_extractor, fetch_fn=lambda u: html)
+    assert (out / "content" / "S1.md").exists()
+    assert "conteudo do guia" in (out / "content" / "S1.md").read_text(encoding="utf-8")
+
+
 def test_build_normalizes_pdf(tmp_path):
     pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
     out = build_skill([pdf], tmp_path / "work", tmp_path / "skill",

@@ -47,14 +47,36 @@ def _normalize_pdf(path: Path, out_images_dir: Path, source_id: str) -> Normaliz
                          warnings=warnings, page_count=doc.page_count)
 
 
+import re as _re
+
+_BOILERPLATE = _re.compile(
+    r"<(script|style|nav|footer|header|aside)\b[^>]*>.*?</\1>", _re.I | _re.S)
+
+
+def _strip_boilerplate(html: str) -> str:
+    return _BOILERPLATE.sub("", html)
+
+
 def _normalize_html(text: str) -> NormalizedDoc:
     from markdownify import markdownify as md
 
     return NormalizedDoc(markdown=md(text).strip() + "\n")
 
 
-def normalize(path: Path, *, kind: str, out_images_dir: Path,
-              source_id: str, html_text: str | None = None) -> NormalizedDoc:
+def _default_fetch(url: str) -> str:
+    from urllib.request import urlopen
+
+    with urlopen(url, timeout=30) as r:  # noqa: S310 (URL vem do usuário)
+        return r.read().decode("utf-8", errors="replace")
+
+
+def normalize(path, *, kind: str, out_images_dir: Path,
+              source_id: str, html_text: str | None = None,
+              fetch_fn=None) -> NormalizedDoc:
+    if kind == "url":
+        html = html_text if html_text is not None else (
+            fetch_fn(path) if fetch_fn else _default_fetch(str(path)))
+        return _normalize_html(_strip_boilerplate(html))
     if kind in {"md", "markdown"}:
         return NormalizedDoc(markdown=Path(path).read_text(encoding="utf-8", errors="replace"))
     if kind == "txt":
