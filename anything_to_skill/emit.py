@@ -107,10 +107,27 @@ def emit_skill(graph_path: Path, sources: list[Source],
             "# Cheatsheet\n\n_(regras de decisão — a preencher a partir de content/)_\n",
             encoding="utf-8")
 
-    # 4. SKILL.md roteador (roteia, nao resume)
+    # 4. SKILL.md roteador (roteia, nao resume) com frontmatter para o Claude Code
     idx = "\n".join(f"| {t} | `sections/{s}.md` |" for t, s in theme_rows)
+    skill_name = _slug(out_dir.name)
+    # gatilhos vêm dos conceitos reais (labels dos nós), não dos rótulos de comunidade
+    topics_list = []
+    seen_topics = set()
+    for n in graph.get("nodes", []):
+        lbl = n.get("label")
+        if lbl and lbl not in seen_topics:
+            seen_topics.add(lbl)
+            topics_list.append(lbl)
+    topics = ", ".join(topics_list[:12]) or ", ".join(t for t, _ in theme_rows) or "o corpus"
+    description = (
+        f"Referência consultável sobre {topics}, construída a partir de "
+        f"{len(sources)} fonte(s), com cada afirmação rastreável até a fonte. "
+        f"Use para responder perguntas sobre {topics}."
+    ).replace('"', "'").replace("\n", " ")
+    frontmatter = f'---\nname: {skill_name}\ndescription: "{description}"\n---\n\n'
     skill_md = (
-        "# anything-to-skill (gerada)\n\n"
+        frontmatter +
+        f"# {skill_name}\n\n"
         "Roteador. Abra a secao do tema conforme a pergunta.\n\n"
         "| Tema | Arquivo |\n|---|---|\n" + idx + "\n\n"
         "## Legenda de citacoes\n"

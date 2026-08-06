@@ -46,6 +46,21 @@ def test_emitter_uses_profile_and_cross_index(tmp_path):
     assert "Temas" in smd and "S1" in smd
 
 
+def test_generated_skill_has_frontmatter(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "minha-skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    assert skill.startswith("---\n")
+    assert "name: minha-skill" in skill
+    assert "description:" in skill
+    # os temas viram gatilho na descrição
+    assert "Few-shot prompting" in skill
+
+
 def test_section_cites_block_anchor(tmp_path):
     content = tmp_path / "content"
     content.mkdir()
