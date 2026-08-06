@@ -142,6 +142,25 @@ def test_section_summary_dropped_when_citation_invalid(tmp_path):
     assert "Resumo inventado" not in secs
 
 
+def test_glossary_shows_evidence_weight(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("conceito x\n", encoding="utf-8")
+    graph = {
+        "nodes": [{"id": "a", "label": "Conceito X", "file_type": "concept",
+                   "source_file": "S1.md", "source_location": "S1.md#L1",
+                   "evidence_weight": 3}],
+        "edges": [], "communities": {"0": ["a"]}, "labels": {"0": "Conceito X"},
+    }
+    gp = tmp_path / "graph.json"
+    gp.write_text(json.dumps(graph), encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(gp, sources, content, out)
+    gloss = (out / "glossary.md").read_text(encoding="utf-8")
+    assert "3 fontes" in gloss
+
+
 def test_tensions_lists_contradictions(tmp_path):
     content = tmp_path / "content"
     content.mkdir()

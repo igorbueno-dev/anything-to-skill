@@ -15,6 +15,7 @@ from .verify import verify_skill
 from .kg import (detect, build_graph, cluster, export_graph, label_communities,
                  add_structure_affinity)
 from .structure import segment_by_headings, segment_index_for_line
+from .dedup import dedup_nodes, remap_edges
 
 Extractor = Callable[[dict, Path], dict]
 
@@ -121,7 +122,7 @@ def _write_build_report(out_dir, sources, source_meta, reports, extraction, comm
 
 def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
                 *, extractor: Extractor, vision_describe=None, summarize_fn=None,
-                qa_gen_fn=None, answer_fn=None) -> Path:
+                qa_gen_fn=None, answer_fn=None, similar_fn=None) -> Path:
     work_dir = Path(work_dir)
     out_dir = Path(out_dir)
     content = work_dir / "content"
@@ -163,6 +164,11 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
         extraction["nodes"] = kept
         extraction["edges"] = [e for e in extraction.get("edges", [])
                                if e.get("source") in kept_ids and e.get("target") in kept_ids]
+
+    # desduplicação: conceitos equivalentes viram um nó com peso de evidência
+    deduped, id_map = dedup_nodes(extraction.get("nodes", []), similar_fn=similar_fn)
+    extraction["nodes"] = deduped
+    extraction["edges"] = remap_edges(extraction.get("edges", []), id_map)
 
     G = build_graph(extraction, directed=False)
     # afinidade estrutural: nós do mesmo segmento não se dissolvem num tema maior
