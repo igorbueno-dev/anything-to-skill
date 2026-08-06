@@ -44,6 +44,29 @@ def _node_segments(nodes, segments_by_source):
     return result
 
 
+def _write_coverage(out_dir, sources, segments_by_source, extraction, *, gap_min_words=50):
+    """coverage.md: por fonte e segmento, conceitos, palavras, densidade e lacunas."""
+    node_seg = _node_segments(extraction.get("nodes", []), segments_by_source)
+    counts: dict[str, int] = {}
+    for key in node_seg.values():
+        counts[key] = counts.get(key, 0) + 1
+
+    lines = ["# Cobertura", ""]
+    for s in sources:
+        segs = segments_by_source.get(s.id, [])
+        lines.append(f"## {s.id} - {s.title}")
+        lines.append("")
+        lines.append("| Segmento | Palavras | Conceitos | Densidade (/1000) | Status |")
+        lines.append("|---|---|---|---|---|")
+        for idx, seg in enumerate(segs):
+            c = counts.get(f"{s.id}:{idx}", 0)
+            dens = round(c / seg.word_count * 1000, 1) if seg.word_count else 0.0
+            status = "lacuna" if (c == 0 and seg.word_count >= gap_min_words) else "ok"
+            lines.append(f"| {seg.heading} | {seg.word_count} | {c} | {dens} | {status} |")
+        lines.append("")
+    (out_dir / "coverage.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def _write_build_report(out_dir, sources, source_meta, reports, extraction, communities):
     """Escreve build_report.md (humano) e .qa/build_report.json (máquina) com números
     autoritativos colhidos do próprio build."""
@@ -162,6 +185,9 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
 
     # relatório de build: números autoritativos
     _write_build_report(out_dir, sources, source_meta, reports, extraction, communities)
+
+    # mapa de cobertura: densidade e lacunas por segmento
+    _write_coverage(out_dir, sources, segments_by_source, extraction)
 
     # copia figuras extraídas pra pasta-skill final
     figure_files = [f for f in figures.iterdir() if f.is_file()]
