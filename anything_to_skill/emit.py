@@ -156,6 +156,27 @@ def emit_skill(graph_path: Path, sources: list[Source],
                     body = summary + "\n\n" + body
         (out_dir / "sections" / f"{slug}.md").write_text(body, encoding="utf-8")
 
+    # 3a2. tensions.md — contradições entre fontes (arestas `contradicts`)
+    def _cite_of(n: dict) -> str:
+        sid = _source_id_for(n.get("source_file"), sources)
+        anchor = nearest_anchor(blocks_by_source.get(sid, []), n.get("source_location"))
+        return f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
+
+    tension_lines = ["# Tensões", ""]
+    found_tension = False
+    for e in graph.get("edges", []):
+        if (e.get("relation") or "").lower() not in {"contradicts", "contradiz"}:
+            continue
+        a = nodes.get(e.get("source"), {})
+        b = nodes.get(e.get("target"), {})
+        tension_lines.append(
+            f"- **{a.get('label', '?')}** {_cite_of(a)} contradiz "
+            f"**{b.get('label', '?')}** {_cite_of(b)}")
+        found_tension = True
+    if not found_tension:
+        tension_lines.append("_(nenhuma contradição detectada)_")
+    (out_dir / "tensions.md").write_text("\n".join(tension_lines) + "\n", encoding="utf-8")
+
     # 3b. glossary.md — conceitos alfabetizados, ancorados
     gloss = sorted(
         (n for n in graph.get("nodes", []) if n.get("file_type") in {"concept", "rationale"}),

@@ -142,6 +142,42 @@ def test_section_summary_dropped_when_citation_invalid(tmp_path):
     assert "Resumo inventado" not in secs
 
 
+def test_tensions_lists_contradictions(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("alpha afirmacao\n\nbeta afirmacao\n", encoding="utf-8")
+    graph = {
+        "nodes": [
+            {"id": "a", "label": "Alpha", "file_type": "claim",
+             "source_file": "S1.md", "source_location": "S1.md#L1"},
+            {"id": "b", "label": "Beta", "file_type": "claim",
+             "source_file": "S1.md", "source_location": "S1.md#L3"},
+        ],
+        "edges": [{"source": "a", "target": "b", "relation": "contradicts"}],
+        "communities": {"0": ["a", "b"]},
+        "labels": {"0": "Alpha"},
+    }
+    gp = tmp_path / "graph.json"
+    gp.write_text(json.dumps(graph), encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(gp, sources, content, out)
+    tens = (out / "tensions.md").read_text(encoding="utf-8")
+    assert "Alpha" in tens and "Beta" in tens
+    assert "contrad" in tens.lower()
+
+
+def test_tensions_empty_when_none(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("texto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    tens = (out / "tensions.md").read_text(encoding="utf-8")
+    assert "nenhuma" in tens.lower()
+
+
 def test_section_cites_block_anchor(tmp_path):
     content = tmp_path / "content"
     content.mkdir()
