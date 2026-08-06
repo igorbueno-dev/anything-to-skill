@@ -4,8 +4,20 @@ import json
 import re
 from dataclasses import dataclass, asdict
 from pathlib import Path
+from urllib.parse import urlparse
 
 _HEADING = re.compile(r"^\s*#\s+(.+?)\s*$", re.MULTILINE)
+_URL = re.compile(r"^https?://", re.I)
+
+
+def _is_url(x) -> bool:
+    return isinstance(x, str) and bool(_URL.match(x))
+
+
+def _url_title(url: str) -> str:
+    u = urlparse(url)
+    seg = [s for s in u.path.split("/") if s]
+    return (seg[-1] if seg else u.netloc) or url
 
 
 @dataclass
@@ -30,9 +42,12 @@ def _kind_for(path: Path) -> str:
     return {"markdown": "md"}.get(ext, ext or "unknown")
 
 
-def register_sources(paths: list[Path], out_dir: Path) -> list[Source]:
+def register_sources(paths: list, out_dir: Path) -> list[Source]:
     sources: list[Source] = []
     for i, p in enumerate(paths, start=1):
+        if _is_url(p):
+            sources.append(Source(id=f"S{i}", title=_url_title(p), kind="url", origin=p))
+            continue
         p = Path(p)
         sources.append(
             Source(

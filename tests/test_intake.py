@@ -24,6 +24,15 @@ def test_registers_markdown_source_with_stable_id(tmp_path):
     assert data[0]["title"] == "Prompt Engineering"
 
 
+def test_registers_url_source(tmp_path):
+    out = tmp_path / "out"
+    out.mkdir()
+    sources = register_sources(["https://exemplo.com/blog/meu-post"], out)
+    assert sources[0].kind == "url"
+    assert sources[0].origin == "https://exemplo.com/blog/meu-post"
+    assert sources[0].title == "meu-post"
+
+
 def test_ids_increment_in_order(tmp_path):
     a = tmp_path / "a.md"
     a.write_text("# A\n", encoding="utf-8")

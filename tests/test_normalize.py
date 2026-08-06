@@ -36,6 +36,18 @@ def test_html_preserves_code_fences(tmp_path):
     assert "return 42" in doc.markdown
 
 
+def test_url_fetches_and_strips_boilerplate(tmp_path):
+    html = ("<html><body><nav>menu inicio contato</nav>"
+            "<article><h1>Titulo</h1><p>corpo do artigo</p></article>"
+            "<footer>rodape irrelevante</footer></body></html>")
+    doc = normalize("https://exemplo.com/post", kind="url",
+                    out_images_dir=tmp_path / "fig", source_id="S1",
+                    fetch_fn=lambda url: html)
+    assert "corpo do artigo" in doc.markdown
+    assert "menu inicio" not in doc.markdown
+    assert "rodape irrelevante" not in doc.markdown
+
+
 def test_pdf_reports_page_count(tmp_path):
     pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
     doc = normalize(pdf, kind="pdf", out_images_dir=tmp_path / "fig", source_id="S1")

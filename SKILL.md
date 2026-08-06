@@ -11,6 +11,8 @@ tema, com o texto-fonte completo consultável e cada afirmação rastreável at�
 ## Entradas aceitas
 
 Arquivos locais **PDF** (texto + imagens preservadas), **Markdown**, **txt** e **HTML**.
+**URLs** (http/https): passe a URL direto; o conteúdo é buscado e limpo de boilerplate
+(use `build_skill(..., fetch_fn=...)` para injetar o fetch em ambiente controlado).
 Texto colado: salve num arquivo `.md` ou `.txt` e passe o caminho.
 
 ## Ambiente
