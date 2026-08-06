@@ -120,7 +120,8 @@ def _write_build_report(out_dir, sources, source_meta, reports, extraction, comm
 
 
 def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
-                *, extractor: Extractor, vision_describe=None, summarize_fn=None) -> Path:
+                *, extractor: Extractor, vision_describe=None, summarize_fn=None,
+                qa_gen_fn=None, answer_fn=None) -> Path:
     work_dir = Path(work_dir)
     out_dir = Path(out_dir)
     content = work_dir / "content"
@@ -209,5 +210,11 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
         for f in (out_dir / "content").glob("*.md")
     }
     verify_skill(out_dir, anchor_index, source_texts=source_texts)
+
+    # autoavaliação opcional (só roda se as funções injetadas vierem)
+    if qa_gen_fn and answer_fn:
+        from .eval import evaluate_skill, write_eval_report
+        report = evaluate_skill(out_dir, qa_gen_fn=qa_gen_fn, answer_fn=answer_fn)
+        write_eval_report(report, out_dir / ".qa")
 
     return result
