@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from anything_to_skill.intake import Source
@@ -59,6 +60,36 @@ def test_generated_skill_has_frontmatter(tmp_path):
     assert "description:" in skill
     # os temas viram gatilho na descrição
     assert "Few-shot prompting" in skill
+
+
+def test_frontmatter_description_is_tight_and_not_duplicated(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# Livro\n\ntexto\n", encoding="utf-8")
+    # grafo com muitos temas de rótulos longos, para forçar o corte
+    labels = {str(i): f"Conceito bastante longo numero {i} que ocupa muito espaco"
+              for i in range(12)}
+    nodes = [{"id": f"n{i}", "label": labels[str(i)], "file_type": "concept",
+              "source_file": "S1.md", "source_location": "S1.md#L3"} for i in range(12)]
+    graph = {"nodes": nodes, "edges": [],
+             "communities": {str(i): [f"n{i}"] for i in range(12)},
+             "labels": labels}
+    gp = tmp_path / "graph.json"
+    gp.write_text(json.dumps(graph), encoding="utf-8")
+    sources = [Source(id="S1", title="Meu Livro", kind="pdf", origin="/abs/S1.pdf", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(gp, sources, content, out)
+
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    desc_line = next(l for l in skill.splitlines() if l.startswith("description:"))
+    # 1. não repete o gatilho duas vezes (bug antigo)
+    assert "Use para responder perguntas" not in skill
+    # 2. não despeja todos os temas
+    assert desc_line.count("Conceito bastante longo") <= 6
+    # 3. resume o excedente
+    assert "e mais" in desc_line and "tema" in desc_line
+    # 4. tamanho controlado
+    assert len(desc_line) <= 400
 
 
 def test_section_cites_block_anchor(tmp_path):

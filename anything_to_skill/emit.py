@@ -18,6 +18,33 @@ def _slug(text: str) -> str:
     return s or "tema"
 
 
+def _build_description(themes: list[str], subject: str | None, n_sources: int,
+                       *, budget: int = 160, max_themes: int = 6) -> str:
+    """Descrição enxuta para o frontmatter: gatilhos = nomes de tema, sem
+    repetição, cortados por orçamento de caracteres e resumindo o excedente."""
+    shown: list[str] = []
+    used = 0
+    for t in themes:
+        if shown and (used + len(t) + 2 > budget or len(shown) >= max_themes):
+            break
+        shown.append(t)
+        used += len(t) + 2
+    extra = len(themes) - len(shown)
+    phrase = ", ".join(shown) if shown else "o corpus"
+    if extra > 0:
+        phrase += f" e mais {extra} tema" + ("s" if extra != 1 else "")
+    fonte = f"{n_sources} fonte" + ("s" if n_sources != 1 else "")
+    if subject and shown:
+        lead = f"sobre {subject}: {phrase}"
+    elif subject:
+        lead = f"sobre {subject}"
+    else:
+        lead = f"sobre {phrase}"
+    desc = (f"Referência consultável {lead}. Construída de {fonte}, "
+            f"com cada afirmação rastreável até o texto original.")
+    return desc.replace('"', "'").replace("\n", " ")
+
+
 def _load_graph(graph_path: Path) -> dict:
     return json.loads(Path(graph_path).read_text(encoding="utf-8"))
 
@@ -110,20 +137,16 @@ def emit_skill(graph_path: Path, sources: list[Source],
     # 4. SKILL.md roteador (roteia, nao resume) com frontmatter para o Claude Code
     idx = "\n".join(f"| {t} | `sections/{s}.md` |" for t, s in theme_rows)
     skill_name = _slug(out_dir.name)
-    # gatilhos vêm dos conceitos reais (labels dos nós), não dos rótulos de comunidade
-    topics_list = []
-    seen_topics = set()
-    for n in graph.get("nodes", []):
-        lbl = n.get("label")
-        if lbl and lbl not in seen_topics:
-            seen_topics.add(lbl)
-            topics_list.append(lbl)
-    topics = ", ".join(topics_list[:12]) or ", ".join(t for t, _ in theme_rows) or "o corpus"
-    description = (
-        f"Referência consultável sobre {topics}, construída a partir de "
-        f"{len(sources)} fonte(s), com cada afirmação rastreável até a fonte. "
-        f"Use para responder perguntas sobre {topics}."
-    ).replace('"', "'").replace("\n", " ")
+    # gatilhos = nomes de tema (curtos), deduplicados e sem os placeholders "Tema N"
+    seen_t: set[str] = set()
+    themes: list[str] = []
+    for t, _ in theme_rows:
+        if re.fullmatch(r"Tema \d+", t) or t in seen_t:
+            continue
+        seen_t.add(t)
+        themes.append(t)
+    subject = sources[0].title if len(sources) == 1 else None
+    description = _build_description(themes, subject, len(sources))
     frontmatter = f'---\nname: {skill_name}\ndescription: "{description}"\n---\n\n'
     skill_md = (
         frontmatter +
