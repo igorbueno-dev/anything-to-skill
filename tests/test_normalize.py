@@ -26,6 +26,19 @@ def test_html_to_markdown(tmp_path):
     assert "corpo" in doc.markdown
 
 
+def test_pdf_reports_page_count(tmp_path):
+    pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
+    doc = normalize(pdf, kind="pdf", out_images_dir=tmp_path / "fig", source_id="S1")
+    assert isinstance(doc.page_count, int) and doc.page_count >= 1
+
+
+def test_md_page_count_is_none(tmp_path):
+    p = tmp_path / "a.md"
+    p.write_text("x\n", encoding="utf-8")
+    doc = normalize(p, kind="md", out_images_dir=tmp_path / "fig", source_id="S1")
+    assert doc.page_count is None
+
+
 def test_pdf_extracts_and_anchors_images(tmp_path):
     pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
     doc = normalize(pdf, kind="pdf", out_images_dir=tmp_path / "fig", source_id="S1")

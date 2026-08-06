@@ -21,6 +21,58 @@ def _source_id_of(source_file: str | None) -> str:
     return _P(source_file).stem if source_file else ""
 
 
+def _write_build_report(out_dir, sources, source_meta, reports, extraction, communities):
+    """Escreve build_report.md (humano) e .qa/build_report.json (máquina) com números
+    autoritativos colhidos do próprio build."""
+    qa_by_id = {r.source_id: r.status for r in reports}
+    concepts_by_id: dict[str, int] = {}
+    for n in extraction.get("nodes", []):
+        sid = _source_id_of(n.get("source_file"))
+        concepts_by_id[sid] = concepts_by_id.get(sid, 0) + 1
+
+    src_rows = []
+    for s in sources:
+        meta = source_meta.get(s.id, {})
+        src_rows.append({
+            "id": s.id,
+            "title": s.title,
+            "kind": s.kind,
+            "profile": s.profile,
+            "pages": meta.get("pages"),
+            "chars": meta.get("chars", 0),
+            "lines": meta.get("lines", 0),
+            "images": meta.get("images", 0),
+            "concepts": concepts_by_id.get(s.id, 0),
+            "qa_status": qa_by_id.get(s.id, "unknown"),
+        })
+
+    data = {
+        "sources": src_rows,
+        "total_sources": len(sources),
+        "total_concepts": len(extraction.get("nodes", [])),
+        "total_edges": len(extraction.get("edges", [])),
+        "total_themes": len(communities),
+        "total_images": sum(r["images"] for r in src_rows),
+    }
+
+    (out_dir / ".qa").mkdir(parents=True, exist_ok=True)
+    (out_dir / ".qa" / "build_report.json").write_text(
+        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    lines = ["# Relatorio de build", ""]
+    lines.append(f"- Fontes: {data['total_sources']}")
+    lines.append(f"- Conceitos: {data['total_concepts']} | Relacoes: {data['total_edges']}")
+    lines.append(f"- Temas: {data['total_themes']} | Imagens: {data['total_images']}")
+    lines.append("")
+    lines.append("| Fonte | Titulo | Tipo | Paginas | Chars | Conceitos | QA |")
+    lines.append("|---|---|---|---|---|---|---|")
+    for r in src_rows:
+        pages = r["pages"] if r["pages"] is not None else "-"
+        lines.append(f"| {r['id']} | {r['title']} | {r['kind']} | {pages} | "
+                     f"{r['chars']} | {r['concepts']} | {r['qa_status']} |")
+    (out_dir / "build_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
                 *, extractor: Extractor, vision_describe=None) -> Path:
     work_dir = Path(work_dir)
@@ -34,12 +86,19 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
     sources = register_sources([Path(p) for p in inputs], work_dir)
     reports = []
     all_images = []  # (source_id, ImageRef)
+    source_meta = {}  # src.id -> stats brutas do normalizado
     for src, inp in zip(sources, inputs):
         doc = normalize(Path(inp), kind=src.kind, out_images_dir=figures, source_id=src.id)
         (content / f"{src.id}.md").write_text(doc.markdown, encoding="utf-8")
         src.profile = classify(doc.markdown, src.kind)
         reports.append(assess(src.id, doc.markdown,
                               images_extracted=len(doc.images)))
+        source_meta[src.id] = {
+            "chars": len(doc.markdown),
+            "lines": doc.markdown.count("\n") + 1,
+            "pages": doc.page_count,
+            "images": len(doc.images),
+        }
         for img in doc.images:
             all_images.append((src.id, img))
 
@@ -74,6 +133,9 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
     # trilha de auditoria do QA (sempre presente)
     write_qa_report(reports, out_dir / ".qa")
 
+    # relatório de build: números autoritativos
+    _write_build_report(out_dir, sources, source_meta, reports, extraction, communities)
+
     # copia figuras extraídas pra pasta-skill final
     figure_files = [f for f in figures.iterdir() if f.is_file()]
     if figure_files:
@@ -83,7 +145,7 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
         flines = ["# Figuras", ""]
         for sid, img in all_images:
             desc = vision_describe(figures / img.filename) if vision_describe else "(descrição pendente)"
-            flines.append(f"- **{img.filename}** (fonte {sid}, pág {img.page}) — {desc}")
+            flines.append(f"- **{img.filename}** (fonte {sid}, pag {img.page}): {desc}")
         (out_dir / "figures" / "figures.md").write_text("\n".join(flines) + "\n", encoding="utf-8")
 
     # verificação final: traceabilidade, cite-check, nuance, segurança
