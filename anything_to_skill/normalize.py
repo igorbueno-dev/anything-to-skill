@@ -16,6 +16,7 @@ class NormalizedDoc:
     markdown: str
     images: list[ImageRef] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    page_count: int | None = None
 
 
 def _normalize_pdf(path: Path, out_images_dir: Path, source_id: str) -> NormalizedDoc:
@@ -41,8 +42,9 @@ def _normalize_pdf(path: Path, out_images_dir: Path, source_id: str) -> Normaliz
             parts.append(anchor)
             images.append(ImageRef(filename=fname, anchor=anchor, page=pno + 1))
     if doc.page_count and not images:
-        warnings.append("nenhuma imagem extraída — verificar se o PDF tinha figuras")
-    return NormalizedDoc(markdown="\n\n".join(parts) + "\n", images=images, warnings=warnings)
+        warnings.append("nenhuma imagem extraida; verificar se o PDF tinha figuras")
+    return NormalizedDoc(markdown="\n\n".join(parts) + "\n", images=images,
+                         warnings=warnings, page_count=doc.page_count)
 
 
 def _normalize_html(text: str) -> NormalizedDoc:
