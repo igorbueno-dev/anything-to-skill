@@ -1,6 +1,7 @@
 import json
 
-from anything_to_skill.kg import detect, build_graph, cluster, export_graph, label_communities
+from anything_to_skill.kg import (detect, build_graph, cluster, export_graph,
+                                  label_communities, add_structure_affinity)
 
 
 def test_detect_categorizes(tmp_path):
@@ -53,6 +54,22 @@ def test_label_communities_uses_central_node():
 def test_label_communities_fallback_without_label():
     G = build_graph({"nodes": [{"id": "x"}], "edges": []})
     assert label_communities(G, {0: ["x"]})[0] == "Tema 0"
+
+
+def test_affinity_groups_same_segment_nodes():
+    G = build_graph({"nodes": [{"id": "a"}, {"id": "b"}], "edges": []})
+    add_structure_affinity(G, {"a": "seg1", "b": "seg1"})
+    comms = cluster(G)
+    assert any("a" in ids and "b" in ids for ids in comms.values())
+
+
+def test_affinity_keeps_different_segments_apart():
+    G = build_graph({"nodes": [{"id": "a"}, {"id": "b"}], "edges": []})
+    add_structure_affinity(G, {"a": "seg1", "b": "seg2"})
+    comms = cluster(G)
+    a_comm = next(c for c, ids in comms.items() if "a" in ids)
+    b_comm = next(c for c, ids in comms.items() if "b" in ids)
+    assert a_comm != b_comm
 
 
 def test_export_graph_writes_nodes_and_edges(tmp_path):

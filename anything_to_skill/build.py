@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Callable
@@ -11,7 +12,9 @@ from .emit import emit_skill
 from .qa import assess, write_qa_report
 from .profiles import classify
 from .verify import verify_skill
-from .kg import detect, build_graph, cluster, export_graph, label_communities
+from .kg import (detect, build_graph, cluster, export_graph, label_communities,
+                 add_structure_affinity)
+from .structure import segment_by_headings, segment_index_for_line
 
 Extractor = Callable[[dict, Path], dict]
 
@@ -19,6 +22,26 @@ Extractor = Callable[[dict, Path], dict]
 def _source_id_of(source_file: str | None) -> str:
     from pathlib import Path as _P
     return _P(source_file).stem if source_file else ""
+
+
+def _line_of(source_location: str | None) -> int | None:
+    m = re.search(r"#L(\d+)", source_location or "")
+    return int(m.group(1)) if m else None
+
+
+def _node_segments(nodes, segments_by_source):
+    """Mapeia cada nó ao seu segmento (chave 'Sn:idx'), pela linha da source_location."""
+    result = {}
+    for n in nodes:
+        sid = _source_id_of(n.get("source_file"))
+        segs = segments_by_source.get(sid)
+        line = _line_of(n.get("source_location"))
+        if not segs or line is None:
+            continue
+        idx = segment_index_for_line(segs, line)
+        if idx >= 0:
+            result[n["id"]] = f"{sid}:{idx}"
+    return result
 
 
 def _write_build_report(out_dir, sources, source_meta, reports, extraction, communities):
@@ -87,6 +110,7 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
     reports = []
     all_images = []  # (source_id, ImageRef)
     source_meta = {}  # src.id -> stats brutas do normalizado
+    segments_by_source = {}  # src.id -> list[Segment]
     for src, inp in zip(sources, inputs):
         doc = normalize(Path(inp), kind=src.kind, out_images_dir=figures, source_id=src.id)
         (content / f"{src.id}.md").write_text(doc.markdown, encoding="utf-8")
@@ -99,6 +123,7 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
             "pages": doc.page_count,
             "images": len(doc.images),
         }
+        segments_by_source[src.id] = segment_by_headings(doc.markdown)
         for img in doc.images:
             all_images.append((src.id, img))
 
@@ -116,6 +141,8 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
                                if e.get("source") in kept_ids and e.get("target") in kept_ids]
 
     G = build_graph(extraction, directed=False)
+    # afinidade estrutural: nós do mesmo segmento não se dissolvem num tema maior
+    add_structure_affinity(G, _node_segments(extraction.get("nodes", []), segments_by_source))
     communities = cluster(G)
 
     graph_path = work_dir / "graph.json"
