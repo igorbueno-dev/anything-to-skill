@@ -26,6 +26,16 @@ def test_html_to_markdown(tmp_path):
     assert "corpo" in doc.markdown
 
 
+def test_html_preserves_code_fences(tmp_path):
+    html = "<h1>Doc</h1><p>texto</p><pre><code>def foo():\n    return 42</code></pre>"
+    doc = normalize(tmp_path / "x.html", kind="html",
+                    out_images_dir=tmp_path / "fig", source_id="S1",
+                    html_text=html)
+    assert "```" in doc.markdown
+    assert "def foo():" in doc.markdown
+    assert "return 42" in doc.markdown
+
+
 def test_pdf_reports_page_count(tmp_path):
     pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
     doc = normalize(pdf, kind="pdf", out_images_dir=tmp_path / "fig", source_id="S1")
