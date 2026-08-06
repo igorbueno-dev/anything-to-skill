@@ -73,7 +73,7 @@ def verify_skill(out_dir: Path, anchor_index: dict[str, str], *,
     hallucinated = cite_check(quotes, anchor_index)
     secrets = security_scan(out_dir)
     status = "blocked" if (orphans or hallucinated or secrets) else "pass"
-    lines = [f"# Relatório de verificação — {status}", ""]
+    lines = [f"# Relatório de verificação: {status}", ""]
     lines.append(f"- citações órfãs: {orphans or 'nenhuma'}")
     lines.append(f"- citações alucinadas: {hallucinated or 'nenhuma'}")
     lines.append(f"- alertas de nuance: {nuance or 'nenhum'}")

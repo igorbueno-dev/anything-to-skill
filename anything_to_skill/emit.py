@@ -66,6 +66,15 @@ def _usage_blocks() -> str:
     )
 
 
+_CITE_ANCHOR = re.compile(r"\[S\d+·([^\]]+)\]")
+
+
+def _summary_ok(summary: str, valid_anchors: set[str]) -> bool:
+    """Guarda de fidelidade do resumo: toda citação com âncora deve apontar para
+    uma âncora real. Resumo sem âncora inválida passa; com âncora inexistente, cai."""
+    return all(a in valid_anchors for a in _CITE_ANCHOR.findall(summary))
+
+
 def _load_graph(graph_path: Path) -> dict:
     return json.loads(Path(graph_path).read_text(encoding="utf-8"))
 
@@ -88,7 +97,7 @@ def _source_id_for(source_file: str | None, sources: list[Source]) -> str:
 
 
 def emit_skill(graph_path: Path, sources: list[Source],
-               content_dir: Path, out_dir: Path) -> Path:
+               content_dir: Path, out_dir: Path, *, summarize_fn=None) -> Path:
     graph = _load_graph(graph_path)
     nodes = _node_index(graph)
     communities: dict = graph.get("communities", {})
@@ -109,8 +118,10 @@ def emit_skill(graph_path: Path, sources: list[Source],
 
     # 2. .graph/graph.json + índice de âncoras (endereçamento)
     shutil.copy2(graph_path, out_dir / ".graph" / "graph.json")
+    anchor_index = build_anchor_index(blocks_by_source)
+    valid_anchors = set(anchor_index.keys())
     (out_dir / ".graph" / "anchors.json").write_text(
-        json.dumps(build_anchor_index(blocks_by_source), indent=2, ensure_ascii=False),
+        json.dumps(anchor_index, indent=2, ensure_ascii=False),
         encoding="utf-8")
 
     # 3. sections/ — uma por comunidade, template do perfil dominante
@@ -134,8 +145,16 @@ def emit_skill(graph_path: Path, sources: list[Source],
                 theme_profiles.append(profile_by_sid[sid])
                 theme_by_sid.setdefault(sid, set()).add(theme)
         profile = Counter(theme_profiles).most_common(1)[0][0] if theme_profiles else "article"
-        (out_dir / "sections" / f"{slug}.md").write_text(
-            render_section(profile, theme, items), encoding="utf-8")
+        body = render_section(profile, theme, items)
+        if summarize_fn:
+            summary = (summarize_fn(theme, items) or "").strip()
+            if summary and _summary_ok(summary, valid_anchors):
+                prefix = f"# {theme}\n\n"
+                if body.startswith(prefix):
+                    body = prefix + summary + "\n\n" + body[len(prefix):]
+                else:
+                    body = summary + "\n\n" + body
+        (out_dir / "sections" / f"{slug}.md").write_text(body, encoding="utf-8")
 
     # 3b. glossary.md — conceitos alfabetizados, ancorados
     gloss = sorted(

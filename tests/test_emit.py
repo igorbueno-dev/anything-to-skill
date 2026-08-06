@@ -112,6 +112,36 @@ def test_generated_skill_has_usage_contract(tmp_path):
     assert "Exemplos de pergunta" in skill
 
 
+def test_section_summary_with_valid_citation(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("intro\n\nfew-shot detalhe aqui\n", encoding="utf-8")
+    sources = [Source(id="S1", title="PE", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+
+    def summ(theme, items):
+        return f"Resumo do tema {items[0]['citation']}."
+
+    emit_skill(_fixture("graph.sample.json"), sources, content, out, summarize_fn=summ)
+    sec = next((out / "sections").glob("*.md")).read_text(encoding="utf-8")
+    assert "Resumo do tema" in sec
+
+
+def test_section_summary_dropped_when_citation_invalid(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("intro\n\nfew-shot detalhe\n", encoding="utf-8")
+    sources = [Source(id="S1", title="PE", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+
+    def summ(theme, items):
+        return "Resumo inventado [S9·nao-existe]."
+
+    emit_skill(_fixture("graph.sample.json"), sources, content, out, summarize_fn=summ)
+    secs = "".join(f.read_text(encoding="utf-8") for f in (out / "sections").glob("*.md"))
+    assert "Resumo inventado" not in secs
+
+
 def test_section_cites_block_anchor(tmp_path):
     content = tmp_path / "content"
     content.mkdir()
