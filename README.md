@@ -112,13 +112,35 @@ build_skill([Path("meu_livro.pdf")], Path("work"), Path("minha-skill"),
 
 ## Instalação
 
+### Como plugin (recomendado)
+
+Registre o marketplace no Claude Code:
+
+```
+/plugin marketplace add igorbueno-dev/anything-to-skill
+```
+
+E instale o plugin:
+
+```
+/plugin install anything-to-skill@igor-skills
+```
+
+Na primeira execução, a skill prepara sozinha um ambiente Python em
+`~/.anything-to-skill` com as dependências. Depois disso, `/anything-to-skill` fica
+disponível.
+
+### A partir do código (para desenvolver)
+
 ```bash
 git clone https://github.com/igorbueno-dev/anything-to-skill.git
-cd anything-to-skill
-python -m venv .venv
-.venv/Scripts/activate          # Windows  (macOS/Linux: source .venv/bin/activate)
-pip install -e ".[dev]"
 ```
+
+```bash
+cd anything-to-skill && python -m venv .venv && .venv/Scripts/activate && pip install -e ".[dev]"
+```
+
+No macOS/Linux, ative com `source .venv/bin/activate`.
 
 <details>
 <summary><b>Requisitos</b></summary>
@@ -135,20 +157,25 @@ pip install -e ".[dev]"
 
 ```
 anything_to_skill/
-  intake.py        registro de fontes
-  normalize.py     PDF/HTML/MD/TXT para Markdown (preserva imagem)
+  intake.py        registro de fontes (arquivos e URLs)
+  normalize.py     PDF/HTML/MD/TXT/URL para Markdown (preserva imagem)
+  structure.py     segmentação por títulos (densidade e temas)
   fencing.py       cerca conteúdo não-confiável (URLs)
   interview.py     entrevista de intake calibrada
   qa.py            portão de QA de extração
-  kg.py            motor de grafo (detect/build/cluster/export)
+  kg.py            motor de grafo (detect/build/cluster/afinidade/export)
+  dedup.py         desduplicação de conceitos + peso de evidência
   chunk.py         fatiamento em blocos endereçáveis
   resolve.py       resolução de citações [Sn·bloco]
   profiles.py      classificador de perfil de conteúdo
   templates.py     esquemas de seção por perfil
   emit.py          emissor da pasta-skill
   build.py         orquestrador do pipeline
+  eval.py          autoavaliação da skill gerada
   verify.py        traceabilidade + cite-check + nuance + segurança
   references/      schema de extração próprio
+.claude-plugin/    manifesto do plugin e catálogo do marketplace
+skills/            a skill empacotada para o plugin
 SKILL.md           orquestrador da skill
 tests/             suíte pytest
 ```
