@@ -1,0 +1,15 @@
+{
+  "name": "igor-skills",
+  "description": "Skills de Igor Bueno para Claude Code.",
+  "owner": {
+    "name": "Igor Bueno",
+    "url": "https://github.com/igorbueno-dev"
+  },
+  "plugins": [
+    {
+      "name": "anything-to-skill",
+      "source": "./",
+      "description": "Transforma um corpus de fontes numa skill de Claude Code consultavel e rastreavel."
+    }
+  ]
+}
