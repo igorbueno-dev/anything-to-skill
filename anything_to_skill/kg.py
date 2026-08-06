@@ -65,6 +65,20 @@ def cluster(G: nx.Graph) -> dict[int, list[str]]:
     return {i: sorted(c) for i, c in enumerate(comms)}
 
 
+def label_communities(G: nx.Graph, communities: dict[int, list[str]]) -> dict[int, str]:
+    """Nomeia cada comunidade pelo seu conceito mais central (nó de maior grau).
+    Determinístico; fallback para 'Tema N' quando o nó não tem label."""
+    labels: dict[int, str] = {}
+    for cid, node_ids in communities.items():
+        if not node_ids:
+            labels[cid] = f"Tema {cid}"
+            continue
+        central = max(node_ids, key=lambda n: G.degree(n) if n in G else 0)
+        lbl = G.nodes[central].get("label") if central in G.nodes else None
+        labels[cid] = lbl or f"Tema {cid}"
+    return labels
+
+
 def export_graph(G: nx.Graph, communities: dict[int, list[str]], path: Path) -> None:
     """Serializa o grafo (nós com atributos + arestas + comunidades) num JSON."""
     nodes = [{"id": nid, **attrs} for nid, attrs in G.nodes(data=True)]

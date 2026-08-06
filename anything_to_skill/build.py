@@ -11,7 +11,7 @@ from .emit import emit_skill
 from .qa import assess, write_qa_report
 from .profiles import classify
 from .verify import verify_skill
-from .kg import detect, build_graph, cluster, export_graph
+from .kg import detect, build_graph, cluster, export_graph, label_communities
 
 Extractor = Callable[[dict, Path], dict]
 
@@ -62,9 +62,10 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
     graph_path = work_dir / "graph.json"
     export_graph(G, communities, graph_path)
 
+    labels = label_communities(G, communities)
     graph = json.loads(graph_path.read_text(encoding="utf-8"))
     graph["communities"] = {str(k): list(v) for k, v in communities.items()}
-    graph.setdefault("labels", {str(k): f"Tema {k}" for k in communities})
+    graph["labels"] = {str(k): v for k, v in labels.items()}
     graph_path.write_text(json.dumps(graph, ensure_ascii=False, indent=2),
                           encoding="utf-8")
 

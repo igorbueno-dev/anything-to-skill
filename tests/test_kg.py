@@ -1,6 +1,6 @@
 import json
 
-from anything_to_skill.kg import detect, build_graph, cluster, export_graph
+from anything_to_skill.kg import detect, build_graph, cluster, export_graph, label_communities
 
 
 def test_detect_categorizes(tmp_path):
@@ -39,6 +39,20 @@ def test_cluster_covers_all_nodes():
 
 def test_cluster_empty_graph():
     assert cluster(build_graph({"nodes": [], "edges": []})) == {}
+
+
+def test_label_communities_uses_central_node():
+    G = build_graph({
+        "nodes": [{"id": "a", "label": "Alpha"}, {"id": "b", "label": "Beta"},
+                  {"id": "c", "label": "Gamma"}],
+        "edges": [{"source": "a", "target": "b"}, {"source": "a", "target": "c"}]})
+    labels = label_communities(G, {0: ["a", "b", "c"]})
+    assert labels[0] == "Alpha"  # 'a' e o no mais central (grau 2)
+
+
+def test_label_communities_fallback_without_label():
+    G = build_graph({"nodes": [{"id": "x"}], "edges": []})
+    assert label_communities(G, {0: ["x"]})[0] == "Tema 0"
 
 
 def test_export_graph_writes_nodes_and_edges(tmp_path):
