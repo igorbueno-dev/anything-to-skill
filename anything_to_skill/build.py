@@ -120,7 +120,7 @@ def _write_build_report(out_dir, sources, source_meta, reports, extraction, comm
 
 
 def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
-                *, extractor: Extractor, vision_describe=None) -> Path:
+                *, extractor: Extractor, vision_describe=None, summarize_fn=None) -> Path:
     work_dir = Path(work_dir)
     out_dir = Path(out_dir)
     content = work_dir / "content"
@@ -178,7 +178,7 @@ def build_skill(inputs: list[Path], work_dir: Path, out_dir: Path,
     graph_path.write_text(json.dumps(graph, ensure_ascii=False, indent=2),
                           encoding="utf-8")
 
-    result = emit_skill(graph_path, sources, content, out_dir)
+    result = emit_skill(graph_path, sources, content, out_dir, summarize_fn=summarize_fn)
 
     # trilha de auditoria do QA (sempre presente)
     write_qa_report(reports, out_dir / ".qa")
