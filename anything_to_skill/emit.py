@@ -45,6 +45,27 @@ def _build_description(themes: list[str], subject: str | None, n_sources: int,
     return desc.replace('"', "'").replace("\n", " ")
 
 
+def _usage_blocks() -> str:
+    """Blocos estáticos na SKILL.md gerada: contrato de fidelidade, protocolo de
+    recuperação por intenção e exemplos de pergunta. Sem LLM."""
+    return (
+        "## Como usar este acervo\n"
+        "Responda somente a partir deste acervo. Cite cada afirmação com `[Sn·âncora]`. "
+        "Se o acervo não cobrir a pergunta, diga que não está nas fontes, em vez de "
+        "completar com conhecimento geral.\n\n"
+        "## Como recuperar\n"
+        "- Pergunta ampla (\"me ensina\", \"visão geral\"): varra todas as seções do tema "
+        "e o `glossary.md`.\n"
+        "- Pergunta específica (\"revisa X\", \"o que é X\"): abra a seção do tema e a "
+        "âncora citada; se precisar, faça `grep` sobre `content/`.\n\n"
+        "## Exemplos de pergunta\n"
+        "- \"me ensina <tema>\"\n"
+        "- \"revisa <tema>\"\n"
+        "- \"em que ordem estudo <tema>\"\n"
+        "- \"me testa sobre <tema>\"\n"
+    )
+
+
 def _load_graph(graph_path: Path) -> dict:
     return json.loads(Path(graph_path).read_text(encoding="utf-8"))
 
@@ -154,7 +175,8 @@ def emit_skill(graph_path: Path, sources: list[Source],
         "Roteador. Abra a secao do tema conforme a pergunta.\n\n"
         "| Tema | Arquivo |\n|---|---|\n" + idx + "\n\n"
         "## Legenda de citacoes\n"
-        "`[Sn·loc]` -> fonte Sn no local `loc` (ver `sources.md` e `content/`).\n"
+        "`[Sn·loc]` -> fonte Sn no local `loc` (ver `sources.md` e `content/`).\n\n"
+        + _usage_blocks()
     )
     (out_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
 

@@ -92,6 +92,26 @@ def test_frontmatter_description_is_tight_and_not_duplicated(tmp_path):
     assert len(desc_line) <= 400
 
 
+def test_generated_skill_has_usage_contract(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    # contrato citar-ou-recusar
+    assert "Como usar este acervo" in skill
+    assert "Cite cada afirmação" in skill
+    assert "não está nas fontes" in skill
+    # protocolo de recuperação por intenção
+    assert "Como recuperar" in skill
+    assert "me ensina" in skill.lower()
+    assert "revis" in skill.lower()
+    # onboarding
+    assert "Exemplos de pergunta" in skill
+
+
 def test_section_cites_block_anchor(tmp_path):
     content = tmp_path / "content"
     content.mkdir()
