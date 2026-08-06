@@ -186,13 +186,15 @@ def emit_skill(graph_path: Path, sources: list[Source],
         sid = _source_id_for(n.get("source_file"), sources)
         anchor = nearest_anchor(blocks_by_source.get(sid, []), n.get("source_location"))
         cite = f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
-        glines.append(f"- **{n.get('label')}** {cite}")
+        weight = n.get("evidence_weight")
+        extra = f" (apoiado por {weight} fontes)" if weight and weight > 1 else ""
+        glines.append(f"- **{n.get('label')}** {cite}{extra}")
     (out_dir / "glossary.md").write_text("\n".join(glines) + "\n", encoding="utf-8")
 
     # 3c. cheatsheet.md — só quando algum perfil pede referência rápida
     if any((s.profile in {"technical_book", "reference"}) for s in sources):
         (out_dir / "cheatsheet.md").write_text(
-            "# Cheatsheet\n\n_(regras de decisão — a preencher a partir de content/)_\n",
+            "# Cheatsheet\n\n_(regras de decisão: a preencher a partir de content/)_\n",
             encoding="utf-8")
 
     # 4. SKILL.md roteador (roteia, nao resume) com frontmatter para o Claude Code
