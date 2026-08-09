@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="assets/cover.png" alt="anything-to-skill" width="100%">
-
 # anything-to-skill
 
 **Transforme livros, artigos, transcrições, links e texto colado em _uma única skill de Claude Code_: organizada por tema, com cada afirmação rastreável até a fonte.**
