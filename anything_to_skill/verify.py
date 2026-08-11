@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-_CITE = re.compile(r"\[(S\d+·[^\]]+)\]")
-_QUOTE = re.compile(r'>\s*"([^"]+)"\s*\[(S\d+·[^\]]+)\]')
+_CITE = re.compile(r"\[(S\d+-b\d+)\]")
+_QUOTE = re.compile(r'>\s*"([^"]+)"\s*\[(S\d+-b\d+)\]')
 _CATEGORICAL = re.compile(r"\b(sempre|nunca|garante|garantido|impossível|todos?)\b", re.I)
 _HEDGE = re.compile(r"\b(pode|talvez|na maioria|geralmente|evidência fraca|sugere)\b", re.I)
 
@@ -17,8 +17,7 @@ def check_traceability(sections_dir: Path, anchor_index: dict[str, str]) -> list
     orphans: list[str] = []
     for f in Path(sections_dir).glob("*.md"):
         for cite in find_citations(f.read_text(encoding="utf-8")):
-            anchor = cite.split("·", 1)[1]
-            if anchor not in anchor_index:
+            if cite not in anchor_index:
                 orphans.append(cite)
     return orphans
 
@@ -34,8 +33,7 @@ def extract_quotes(md: str) -> list[tuple[str, str]]:
 def cite_check(quotes: list[tuple[str, str]], anchor_index: dict[str, str]) -> list[str]:
     bad: list[str] = []
     for quote, citation in quotes:
-        anchor = citation.split("·", 1)[1]
-        block = anchor_index.get(anchor, "")
+        block = anchor_index.get(citation, "")
         if _norm(quote) not in _norm(block):
             bad.append(citation)
     return bad

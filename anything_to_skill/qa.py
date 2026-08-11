@@ -77,7 +77,7 @@ def write_qa_report(reports: list[QAReport], out_dir: Path) -> Path:
     lines = ["# Relatório de QA de extração", ""]
     for r in reports:
         mark = {"clean": "✓", "partial": "⚠", "failed": "⚑"}[r.status]
-        lines.append(f"## {mark} {r.source_id} — {r.status}")
+        lines.append(f"## {mark} {r.source_id}: {r.status}")
         for k, v in r.scores.items():
             lines.append(f"- {k}: {v:.2f}")
         if r.flags:

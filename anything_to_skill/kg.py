@@ -1,7 +1,7 @@
 """Motor de grafo de conhecimento próprio, sobre networkx.
 
-Faz a fatia que a skill precisa — categorizar arquivos, montar o grafo, detectar
-comunidades e serializar — sem depender de nenhum motor externo.
+Faz a fatia que a skill precisa (categorizar arquivos, montar o grafo, detectar
+comunidades e serializar) sem depender de nenhum motor externo.
 """
 from __future__ import annotations
 
