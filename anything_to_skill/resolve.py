@@ -4,7 +4,7 @@ import re
 
 from .chunk import Block
 
-_CITE = re.compile(r"\[(?P<sid>S\d+)·(?P<anchor>[^\]]+)\]")
+_CITE = re.compile(r"\[(?P<anchor>S\d+-b\d+)\]")
 
 
 def build_anchor_index(blocks_by_source: dict[str, list[Block]]) -> dict[str, str]:

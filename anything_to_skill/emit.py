@@ -50,13 +50,23 @@ def _usage_blocks() -> str:
     recuperação por intenção e exemplos de pergunta. Sem LLM."""
     return (
         "## Idioma\n"
-        "Responda sempre no idioma em que o usuário escrever, independentemente do "
-        "idioma desta skill ou das fontes. Preserve como estão as citações "
-        "`[Sn·âncora]`, os nomes próprios e os trechos de código das fontes.\n\n"
+        "Responda no idioma do usuário, nunca no idioma das fontes ou desta skill por "
+        "padrão. Identifique o idioma pelo histórico da conversa, não só pela última "
+        "mensagem: se a entrada não trouxer idioma (por exemplo, apenas um link ou "
+        "arquivo), mantenha o idioma que o usuário vem usando. Preserve como estão os "
+        "nomes próprios e os trechos de código das fontes.\n\n"
         "## Como usar este acervo\n"
-        "Responda somente a partir deste acervo. Cite cada afirmação com `[Sn·âncora]`. "
-        "Se o acervo não cobrir a pergunta, diga que não está nas fontes, em vez de "
-        "completar com conhecimento geral.\n\n"
+        "Responda somente a partir deste acervo. Se o acervo não cobrir a pergunta, "
+        "diga que não está nas fontes, em vez de completar com conhecimento geral.\n\n"
+        "## Como citar\n"
+        "Cada trecho tem uma âncora interna `[Sn-bNNNN]` (fonte Sn, bloco NNNN). Não "
+        "repita essa âncora a cada frase, para não poluir o texto:\n"
+        "- Cite por afirmação ou parágrafo, não por frase; agrupe quando a mesma fonte "
+        "sustenta ideias seguidas.\n"
+        "- No corpo da resposta, use números sequenciais: `[1]`, `[2]`, ...\n"
+        "- Ao final, feche com uma seção `Referências` que mapeia cada número à sua "
+        "âncora, com o título da fonte e o arquivo, por exemplo: "
+        "`[1] <fonte> · content/Sn.md · bloco bNNNN`.\n\n"
         "## Como recuperar\n"
         "- Pergunta ampla (\"me ensina\", \"visão geral\"): varra todas as seções do tema "
         "e o `glossary.md`.\n"
@@ -70,7 +80,7 @@ def _usage_blocks() -> str:
     )
 
 
-_CITE_ANCHOR = re.compile(r"\[S\d+·([^\]]+)\]")
+_CITE_ANCHOR = re.compile(r"\[(S\d+-b\d+)\]")
 
 
 def _summary_ok(summary: str, valid_anchors: set[str]) -> bool:
@@ -128,7 +138,7 @@ def emit_skill(graph_path: Path, sources: list[Source],
         json.dumps(anchor_index, indent=2, ensure_ascii=False),
         encoding="utf-8")
 
-    # 3. sections/ — uma por comunidade, template do perfil dominante
+    # 3. sections/: uma por comunidade, template do perfil dominante
     profile_by_sid = {s.id: (s.profile or "article") for s in sources}
     theme_rows = []
     theme_by_sid: dict[str, set[str]] = {}
@@ -143,7 +153,7 @@ def emit_skill(graph_path: Path, sources: list[Source],
             loc = n.get("source_location")
             sid = _source_id_for(n.get("source_file"), sources)
             anchor = nearest_anchor(blocks_by_source.get(sid, []), loc)
-            cite = f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
+            cite = f"[{anchor}]" if anchor else f"[{sid}]"
             items.append({"label": n.get("label", nid), "citation": cite})
             if sid in profile_by_sid:
                 theme_profiles.append(profile_by_sid[sid])
@@ -160,11 +170,11 @@ def emit_skill(graph_path: Path, sources: list[Source],
                     body = summary + "\n\n" + body
         (out_dir / "sections" / f"{slug}.md").write_text(body, encoding="utf-8")
 
-    # 3a2. tensions.md — contradições entre fontes (arestas `contradicts`)
+    # 3a2. tensions.md: contradicoes entre fontes (arestas `contradicts`)
     def _cite_of(n: dict) -> str:
         sid = _source_id_for(n.get("source_file"), sources)
         anchor = nearest_anchor(blocks_by_source.get(sid, []), n.get("source_location"))
-        return f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
+        return f"[{anchor}]" if anchor else f"[{sid}]"
 
     tension_lines = ["# Tensões", ""]
     found_tension = False
@@ -181,7 +191,7 @@ def emit_skill(graph_path: Path, sources: list[Source],
         tension_lines.append("_(nenhuma contradição detectada)_")
     (out_dir / "tensions.md").write_text("\n".join(tension_lines) + "\n", encoding="utf-8")
 
-    # 3b. glossary.md — conceitos alfabetizados, ancorados
+    # 3b. glossary.md: conceitos alfabetizados, ancorados
     gloss = sorted(
         (n for n in graph.get("nodes", []) if n.get("file_type") in {"concept", "rationale"}),
         key=lambda n: (n.get("label") or "").lower())
@@ -189,13 +199,13 @@ def emit_skill(graph_path: Path, sources: list[Source],
     for n in gloss:
         sid = _source_id_for(n.get("source_file"), sources)
         anchor = nearest_anchor(blocks_by_source.get(sid, []), n.get("source_location"))
-        cite = f"[{sid}·{anchor}]" if anchor else f"[{sid}]"
+        cite = f"[{anchor}]" if anchor else f"[{sid}]"
         weight = n.get("evidence_weight")
         extra = f" (apoiado por {weight} fontes)" if weight and weight > 1 else ""
         glines.append(f"- **{n.get('label')}** {cite}{extra}")
     (out_dir / "glossary.md").write_text("\n".join(glines) + "\n", encoding="utf-8")
 
-    # 3c. cheatsheet.md — só quando algum perfil pede referência rápida
+    # 3c. cheatsheet.md: so quando algum perfil pede referencia rapida
     if any((s.profile in {"technical_book", "reference"}) for s in sources):
         (out_dir / "cheatsheet.md").write_text(
             "# Cheatsheet\n\n_(regras de decisão: a preencher a partir de content/)_\n",
@@ -221,16 +231,16 @@ def emit_skill(graph_path: Path, sources: list[Source],
         "Roteador. Abra a secao do tema conforme a pergunta.\n\n"
         "| Tema | Arquivo |\n|---|---|\n" + idx + "\n\n"
         "## Legenda de citacoes\n"
-        "`[Sn·loc]` -> fonte Sn no local `loc` (ver `sources.md` e `content/`).\n\n"
+        "`[Sn-bNNNN]` -> fonte Sn, bloco NNNN (ver `sources.md` e `content/`).\n\n"
         + _usage_blocks()
     )
     (out_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
 
-    # 5. sources.md — registro + índice cruzado tema↔fonte
+    # 5. sources.md: registro + indice cruzado tema<->fonte
     src_lines = ["# Fontes", ""]
     for s in sources:
         prof = f" · perfil: {s.profile}" if s.profile else ""
-        src_lines.append(f"- **{s.id}** — {s.title} ({s.kind}){prof} — `{s.origin}`")
+        src_lines.append(f"- **{s.id}** · {s.title} ({s.kind}){prof} · `{s.origin}`")
         temas = sorted(theme_by_sid.get(s.id, set()))
         if temas:
             src_lines.append(f"  - Temas: {', '.join(temas)}")

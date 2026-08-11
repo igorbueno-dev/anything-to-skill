@@ -7,7 +7,7 @@ from anything_to_skill.resolve import build_anchor_index, resolve_citation, near
 def test_resolves_citation_to_block_text():
     blocks = chunk_markdown("a\n\nbeta gamma\n", "S1")
     idx = build_anchor_index({"S1": blocks})
-    assert resolve_citation("[S1·S1-b0001]", idx) == "beta gamma"
+    assert resolve_citation("[S1-b0001]", idx) == "beta gamma"
 
 
 def test_nearest_anchor_by_line():
@@ -23,4 +23,4 @@ def test_nearest_anchor_no_line_defaults_first():
 
 def test_resolve_missing_anchor_raises():
     with pytest.raises(KeyError):
-        resolve_citation("[S1·S1-b9999]", {"S1-b0000": "x"})
+        resolve_citation("[S1-b9999]", {"S1-b0000": "x"})
