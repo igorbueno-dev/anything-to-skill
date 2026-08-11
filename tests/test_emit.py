@@ -112,6 +112,19 @@ def test_generated_skill_has_usage_contract(tmp_path):
     assert "Exemplos de pergunta" in skill
 
 
+def test_generated_skill_has_language_directive(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    # a skill gerada deve interagir no idioma do usuário por padrão
+    assert "## Idioma" in skill
+    assert "idioma em que o usuário" in skill
+
+
 def test_section_summary_with_valid_citation(tmp_path):
     content = tmp_path / "content"
     content.mkdir()
