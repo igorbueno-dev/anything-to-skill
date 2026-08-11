@@ -49,6 +49,10 @@ def _usage_blocks() -> str:
     """Blocos estáticos na SKILL.md gerada: contrato de fidelidade, protocolo de
     recuperação por intenção e exemplos de pergunta. Sem LLM."""
     return (
+        "## Idioma\n"
+        "Responda sempre no idioma em que o usuário escrever, independentemente do "
+        "idioma desta skill ou das fontes. Preserve como estão as citações "
+        "`[Sn·âncora]`, os nomes próprios e os trechos de código das fontes.\n\n"
         "## Como usar este acervo\n"
         "Responda somente a partir deste acervo. Cite cada afirmação com `[Sn·âncora]`. "
         "Se o acervo não cobrir a pergunta, diga que não está nas fontes, em vez de "
