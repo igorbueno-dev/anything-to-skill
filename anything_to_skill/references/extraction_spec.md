@@ -1,4 +1,4 @@
-# anything-to-skill — spec de extração
+# anything-to-skill: spec de extração
 
 Prompt/esquema que o orquestrador passa ao extrator (subagente ou inline) para
 transformar um arquivo de conteúdo num fragmento de grafo de conhecimento.
@@ -55,6 +55,6 @@ conceitos, entidades e relações nomeadas; não invente relações (na dúvida,
 - `confidence_score`: `1.0` para `EXTRACTED`; `0.55–0.95` para `INFERRED`; `0.1–0.3`
   para `AMBIGUOUS`.
 - Densidade: extraia um nó por conceito ou justificativa distinta, não um nó por frase.
-  Um trecho curto (poucos parágrafos) pode gerar só 2-4 nós — não fragmente para parecer
+  Um trecho curto (poucos parágrafos) pode gerar só 2-4 nós, não fragmente para parecer
   mais completo; um corpus grande deve ter mais nós que um pequeno, mas a proporção não é
   fixa.

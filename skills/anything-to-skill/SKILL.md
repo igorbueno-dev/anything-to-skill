@@ -100,7 +100,7 @@ from pathlib import Path
 from anything_to_skill.build import build_skill
 
 WORK = Path(r"<work_dir>")
-OUT  = Path(r"<out_dir>")  # o nome desta pasta vira o `name:` da skill gerada — escolha com cuidado
+OUT  = Path(r"<out_dir>")  # o nome desta pasta vira o `name:` da skill gerada, escolha com cuidado
 inputs = [Path(r"<arquivo1>"), ]
 ext = json.loads((WORK / "extraction.json").read_text(encoding="utf-8"))
 
@@ -113,7 +113,7 @@ conceito central, resolve as âncoras de citação, roda o QA e a verificação 
 pasta-skill e um `build_report.md` com números autoritativos.
 
 Por padrão as seções trazem só os rótulos dos nós, um por linha, com a citação de âncora
-(sem prosa sintetizada) — é a fidelidade byte-a-byte fazendo seu trabalho, não um bug. Para
+(sem prosa sintetizada): é a fidelidade byte-a-byte fazendo seu trabalho, não um bug. Para
 prosa de verdade, dedup semântico ou autoavaliação (perguntas geradas do corpus e
 respondidas com citação), `build_skill` aceita os ganchos opcionais `summarize_fn`,
 `similar_fn`, `qa_gen_fn`/`answer_fn` (veja as assinaturas em `anything_to_skill/build.py`).
