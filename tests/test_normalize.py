@@ -48,6 +48,29 @@ def test_url_fetches_and_strips_boilerplate(tmp_path):
     assert "rodape irrelevante" not in doc.markdown
 
 
+def test_default_fetch_sends_user_agent(tmp_path, monkeypatch):
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self):
+            return b"<html><body><article><h1>T</h1><p>corpo</p></article></body></html>"
+
+    def fake_urlopen(req, timeout=None):
+        captured["user_agent"] = req.get_header("User-agent")
+        return FakeResponse()
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    normalize("https://exemplo.com/post", kind="url",
+              out_images_dir=tmp_path / "fig", source_id="S1")
+    assert captured["user_agent"]
+
+
 def test_pdf_reports_page_count(tmp_path):
     pdf = Path(__file__).parent / "fixtures" / "two_col.pdf"
     doc = normalize(pdf, kind="pdf", out_images_dir=tmp_path / "fig", source_id="S1")

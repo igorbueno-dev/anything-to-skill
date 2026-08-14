@@ -64,9 +64,10 @@ def _normalize_html(text: str) -> NormalizedDoc:
 
 
 def _default_fetch(url: str) -> str:
-    from urllib.request import urlopen
+    from urllib.request import Request, urlopen
 
-    with urlopen(url, timeout=30) as r:  # noqa: S310 (URL vem do usuário)
+    req = Request(url, headers={"User-Agent": "anything-to-skill/1.0"})
+    with urlopen(req, timeout=30) as r:  # noqa: S310 (URL vem do usuário)
         return r.read().decode("utf-8", errors="replace")
 
 

@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Formatos](https://img.shields.io/badge/formatos-PDF%20%C2%B7%20MD%20%C2%B7%20TXT%20%C2%B7%20HTML%20%C2%B7%20URL-informational)
-![Testes](https://img.shields.io/badge/testes-103%20passing-brightgreen)
+![Testes](https://img.shields.io/badge/testes-104%20passing-brightgreen)
 ![Licença](https://img.shields.io/badge/licen%C3%A7a-todos%20os%20direitos%20reservados-red)
 
 </div>
