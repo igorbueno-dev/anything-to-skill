@@ -1,7 +1,7 @@
 {
   "name": "anything-to-skill",
   "description": "Transforma um corpus de fontes (livros, artigos, transcricoes, links) numa skill de Claude Code de alta fidelidade e rastreavel.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": { "name": "Igor Bueno" },
   "homepage": "https://github.com/igorbueno-dev/anything-to-skill",
   "repository": "https://github.com/igorbueno-dev/anything-to-skill",
