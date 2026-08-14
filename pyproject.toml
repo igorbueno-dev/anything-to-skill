@@ -14,6 +14,9 @@ testpaths = ["tests"]
 [tool.setuptools.packages.find]
 include = ["anything_to_skill*"]
 
+[tool.setuptools.package-data]
+anything_to_skill = ["references/*.md", "templates/*.md"]
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
