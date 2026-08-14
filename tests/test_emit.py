@@ -280,7 +280,7 @@ def test_study_modes_asset_covers_fase2_modes():
     for heading in ["Quiz", "Modo socrático", "Desafia minha ideia",
                      "Comparação entre perfis"]:
         assert heading in text
-    assert "sources.md" in text
+    assert "perfil" in text.lower()
     # o gatilho "desafia minha ideia" deve pertencer so ao modo novo, nao ao Debate
     debate_section = text.split("## Debate")[1].split("## Flashcards")[0]
     assert "desafia minha ideia" not in debate_section.lower()
@@ -298,3 +298,26 @@ def test_router_mentions_fase2_study_modes(tmp_path):
     assert "me guia por <tema>" in skill.lower()
     assert "desafia isso" in skill.lower()
     assert "compara os perfis" in skill.lower()
+
+
+def test_study_modes_triggers_are_not_duplicated_across_sections():
+    import re
+    asset = (Path(__file__).parent.parent / "anything_to_skill"
+             / "templates" / "study_modes.md")
+    text = asset.read_text(encoding="utf-8")
+    sections = re.split(r"^## ", text, flags=re.MULTILINE)[1:]
+    seen: dict[str, str] = {}
+    dupes = []
+    for section in sections:
+        heading = section.splitlines()[0].strip()
+        # O gatilho pode se estender por mais de uma linha; captura tudo entre
+        # "Gatilho:" e o primeiro fechamento de citacao ou parenteses seguido
+        # de ponto final, que marca o fim da lista de gatilhos da secao.
+        m = re.search(r'Gatilho:\s*(.*?)(?:"\.|\)\.)', section, re.DOTALL)
+        gatilho_text = m.group(1) if m else ""
+        phrases = re.findall(r'"([^"]+)"', gatilho_text)
+        for phrase in phrases:
+            if phrase in seen and seen[phrase] != heading:
+                dupes.append((phrase, seen[phrase], heading))
+            seen[phrase] = heading
+    assert not dupes, f"Gatilhos duplicados entre secoes: {dupes}"

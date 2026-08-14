@@ -52,7 +52,9 @@ Aqui, diferente dos outros modos, elaborar é o objetivo: use o corpus como base
 responda com aplicação prática na situação do usuário, contraponto à posição dele,
 cruzamento com o que ele trouxe, ou identificação de lacuna/direção que o corpus não
 cobre. Separe claramente, na resposta, o que é citação da fonte do que é raciocínio seu
-em cima do que o usuário trouxe.
+em cima do que o usuário trouxe. Quando o usuário traz uma tese própria específica pra
+testar contra o corpus, não uma situação pra elaborar em cima, esse é o modo Desafia
+minha ideia, não Insights.
 
 ## Notas
 Gatilho: "registra isso numa nota", "nota atômica sobre X".
@@ -97,4 +99,7 @@ Gatilho: "como um paper trata isso comparado com um livro didático", "compara o
 perfis sobre `<tema>`". Leia `sources.md` (lista `perfil: <profile>` por fonte) e o
 índice tema-fonte. Se o tema tiver fontes de perfis diferentes cobrindo-o, compare como
 cada uma trata o assunto, citando trechos de cada. Corpus de perfil único não tem o que
-comparar: diga isso em vez de forçar uma.
+comparar: diga isso em vez de forçar uma. Diferente de Cobertura cruzada: Cobertura
+cruzada olha o que cada fonte cobre ou não cobre (presença/ausência de tema);
+Comparação entre perfis olha como fontes de perfis diferentes tratam o mesmo tema
+(diferença de ênfase/formalismo), assumindo que o tema já é coberto por ambas.

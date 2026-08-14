@@ -96,7 +96,7 @@ fonte completa):
 | Arquivo/pasta | Papel |
 |---|---|
 | `SKILL.md` | roteador: índice de temas, contrato de citar-ou-recusar e como recuperar (sempre carregado) |
-| `study_modes.md` | protocolo dos modos de estudo (mapa, currículo, debate, flashcards, cobertura cruzada, insights, notas) |
+| `study_modes.md` | protocolo dos modos de estudo (mapa, currículo, debate, flashcards, cobertura cruzada, insights, notas, quiz, modo socrático, desafia minha ideia, comparação entre perfis) |
 | `sections/` | síntese por tema, no template do perfil, com resumo citado no topo |
 | `content/` | texto-fonte completo, **byte-idêntico**: a fonte-verdade |
 | `sources.md` | registro de fontes + índice cruzado tema↔fonte |

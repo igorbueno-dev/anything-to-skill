@@ -123,7 +123,8 @@ respondidas com citação), `build_skill` aceita os ganchos opcionais `summarize
 - `SKILL.md` roteador (frontmatter `name`/`description`; contrato de citar-ou-recusar,
   protocolo de recuperação e exemplos de pergunta)
 - `study_modes.md` protocolo dos modos de estudo (mapa, currículo, debate, flashcards,
-  cobertura cruzada, insights, notas), referenciado pelo roteador
+  cobertura cruzada, insights, notas, quiz, modo socrático, desafia minha ideia,
+  comparação entre perfis), referenciado pelo roteador
 - `sections/<tema>.md` uma por tema; `content/{Sn}.md` fonte preservada byte-a-byte
 - `glossary.md`, `sources.md`, `tensions.md` (pares `contradicts`), `coverage.md`,
   `build_report.md`; `cheatsheet.md` só para perfil `technical_book`/`reference`
