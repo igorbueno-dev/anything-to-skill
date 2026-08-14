@@ -26,7 +26,7 @@ nenhuma aresta `depends-on` tocando ele não tem pré-requisito registrado: list
 da ordem, com a nota de que pode ser estudado a qualquer momento.
 
 ## Debate
-Gatilho: "debate", "desafia minha ideia", "onde as fontes divergem".
+Gatilho: "debate", "onde as fontes divergem".
 Leia `tensions.md`. Apresente um lado sem revelar o outro, pergunte a opinião do usuário,
 só depois mostre o lado contrário citando a fonte. Se `tensions.md` não tiver contradição
 registrada, diga isso; não invente uma tensão pra manter o modo funcionando.
@@ -60,3 +60,37 @@ Uma nota por conceito: atômico é "um conceito por nota", não um teto de frase
 é o que o conceito pedir, o bastante pra nota se sustentar sozinha sem precisar do resto
 do texto. Sempre ancorada em citação. Se houver arestas `depends-on` ou
 `conceptually_related_to` ligadas ao conceito, sugira links pras notas relacionadas.
+
+## Quiz
+Gatilho: "quiz sobre `<tema>`", "monta um quiz", "avalia minhas respostas sobre
+`<tema>`". Diferente de Flashcards: aqui é resposta aberta avaliada, não par
+pergunta-resposta autoguiado. Gere 3 a 5 perguntas abertas a partir dos conceitos do
+tema (`glossary.md` e/ou `sections/<tema>.md`), uma de cada vez, nunca formulada de um
+jeito que entregue a resposta na própria pergunta. Depois de cada resposta do usuário,
+compare com o que a fonte diz, aponte o que bateu e o que faltou, citando. Sem nota
+numérica: feche com um resumo qualitativo do que foi bem e o que vale revisar. Tema com
+menos conceitos que o pedido usa quantos houver e avisa.
+
+## Modo socrático
+Gatilho: "me guia por `<tema>`", "quero descobrir sozinho", "modo socrático". Em vez de
+responder direto, faça uma pergunta-pista primeiro, apontando pro pré-requisito via
+aresta `depends-on` (mesma lógica do Currículo) ou um trecho da fonte sem entregar a
+conclusão. Na resposta seguinte do usuário, certa, errada ou "não sei", revele e
+explique citando a fonte. Uma rodada de pista, não insista em várias. Conceito sem
+pré-requisito registrado usa uma pista baseada no próprio trecho da fonte em vez do
+grafo.
+
+## Desafia minha ideia
+Gatilho: usuário apresenta uma tese própria ("desafia isso:", "questiona:"). Busque no
+corpus (`content/`, `sections/`) evidência que sustente ou contradiga a tese trazida
+pelo usuário. Diferente do modo Debate: Debate parte de uma tensão já registrada em
+`tensions.md`; aqui não há arquivo pronto, é busca no texto. Se achar, cite; se o corpus
+não tiver nada diretamente relacionado à tese, diga isso em vez de inventar um
+contra-argumento não ancorado.
+
+## Comparação entre perfis
+Gatilho: "como um paper trata isso comparado com um livro didático", "compara os
+perfis sobre `<tema>`". Leia `sources.md` (lista `perfil: <profile>` por fonte) e o
+índice tema-fonte. Se o tema tiver fontes de perfis diferentes cobrindo-o, compare como
+cada uma trata o assunto, citando trechos de cada. Corpus de perfil único não tem o que
+comparar: diga isso em vez de forçar uma.

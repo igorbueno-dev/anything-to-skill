@@ -271,3 +271,16 @@ def test_study_modes_asset_exists_and_covers_all_modes():
     assert "depends-on" in text
     assert "tensions.md" in text
     assert "glossary.md" in text
+
+
+def test_study_modes_asset_covers_fase2_modes():
+    asset = (Path(__file__).parent.parent / "anything_to_skill"
+             / "templates" / "study_modes.md")
+    text = asset.read_text(encoding="utf-8")
+    for heading in ["Quiz", "Modo socrático", "Desafia minha ideia",
+                     "Comparação entre perfis"]:
+        assert heading in text
+    assert "sources.md" in text
+    # o gatilho "desafia minha ideia" deve pertencer so ao modo novo, nao ao Debate
+    debate_section = text.split("## Debate")[1].split("## Flashcards")[0]
+    assert "desafia minha ideia" not in debate_section.lower()
