@@ -78,7 +78,9 @@ aresta `depends-on` (mesma lógica do Currículo) ou um trecho da fonte sem entr
 conclusão. Na resposta seguinte do usuário, certa, errada ou "não sei", revele e
 explique citando a fonte. Uma rodada de pista, não insista em várias. Conceito sem
 pré-requisito registrado usa uma pista baseada no próprio trecho da fonte em vez do
-grafo.
+grafo. Se o tema tiver mais de um conceito candidato e o pedido do usuário não
+especificar qual, pergunte ao usuário qual conceito ele quer trabalhar antes de montar a
+pista, em vez de escolher um arbitrariamente.
 
 ## Desafia minha ideia
 Gatilho: usuário apresenta uma tese própria ("desafia isso:", "questiona:"). Busque no
@@ -86,7 +88,9 @@ corpus (`content/`, `sections/`) evidência que sustente ou contradiga a tese tr
 pelo usuário. Diferente do modo Debate: Debate parte de uma tensão já registrada em
 `tensions.md`; aqui não há arquivo pronto, é busca no texto. Se achar, cite; se o corpus
 não tiver nada diretamente relacionado à tese, diga isso em vez de inventar um
-contra-argumento não ancorado.
+contra-argumento não ancorado. Se o corpus tiver evidência dos dois lados, que sustenta e
+que contradiz a tese, apresente as duas, cada uma citada, sem forçar um veredito único e
+sem reconciliar as duas numa conclusão própria: isso não é o modo Insights.
 
 ## Comparação entre perfis
 Gatilho: "como um paper trata isso comparado com um livro didático", "compara os
