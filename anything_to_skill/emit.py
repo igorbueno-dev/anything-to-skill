@@ -157,6 +157,14 @@ def emit_skill(graph_path: Path, sources: list[Source],
     # 2b. study_modes.md: protocolo dos modos de estudo, copia verbatim
     shutil.copy2(_TEMPLATES_DIR / "study_modes.md", out_dir / "study_modes.md")
 
+    # 2c. .study/progress.json: estado de progresso do usuario, preservado em rebuilds
+    study_dir = out_dir / ".study"
+    study_dir.mkdir(parents=True, exist_ok=True)
+    progress_path = study_dir / "progress.json"
+    if not progress_path.exists():
+        progress_path.write_text(
+            json.dumps({"temas": {}}, indent=2, ensure_ascii=False), encoding="utf-8")
+
     # 3. sections/: uma por comunidade, template do perfil dominante
     profile_by_sid = {s.id: (s.profile or "article") for s in sources}
     theme_rows = []

@@ -321,3 +321,34 @@ def test_study_modes_triggers_are_not_duplicated_across_sections():
                 dupes.append((phrase, seen[phrase], heading))
             seen[phrase] = heading
     assert not dupes, f"Gatilhos duplicados entre secoes: {dupes}"
+
+
+def test_emit_creates_empty_progress_json(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    progress = json.loads((out / ".study" / "progress.json").read_text(encoding="utf-8"))
+    assert progress == {"temas": {}}
+
+
+def test_emit_preserves_existing_progress_json_on_rebuild(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+
+    custom = {"temas": {"Few-shot prompting": {"status": "revisado",
+                                                "modos_usados": ["quiz"],
+                                                "nota": "usuario ja dominou isso"}}}
+    (out / ".study" / "progress.json").write_text(
+        json.dumps(custom, ensure_ascii=False), encoding="utf-8")
+
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+
+    progress = json.loads((out / ".study" / "progress.json").read_text(encoding="utf-8"))
+    assert progress == custom
