@@ -284,3 +284,17 @@ def test_study_modes_asset_covers_fase2_modes():
     # o gatilho "desafia minha ideia" deve pertencer so ao modo novo, nao ao Debate
     debate_section = text.split("## Debate")[1].split("## Flashcards")[0]
     assert "desafia minha ideia" not in debate_section.lower()
+
+
+def test_router_mentions_fase2_study_modes(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    assert "quiz sobre <tema>" in skill.lower()
+    assert "me guia por <tema>" in skill.lower()
+    assert "desafia isso" in skill.lower()
+    assert "compara os perfis" in skill.lower()

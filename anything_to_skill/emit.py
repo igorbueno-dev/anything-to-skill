@@ -77,7 +77,8 @@ def _usage_blocks() -> str:
         "âncora citada; se precisar, faça `grep` sobre `content/`.\n\n"
         "## Modos de estudo\n"
         "Além de responder, esta skill sabe conduzir mapa de dependência, currículo, "
-        "debate, flashcards, cobertura cruzada, insights e notas Zettelkasten. O "
+        "debate, flashcards, cobertura cruzada, insights, notas Zettelkasten, quiz, "
+        "modo socrático, desafio de ideias e comparação entre perfis de fonte. O "
         "protocolo de cada um está em `study_modes.md`; leia antes de executar qualquer "
         "um deles.\n\n"
         "## Exemplos de pergunta\n"
@@ -88,6 +89,10 @@ def _usage_blocks() -> str:
         "- \"me mostra o mapa de <tema>\"\n"
         "- \"debate comigo sobre <tema>\"\n"
         "- \"registra uma nota sobre <tema>\"\n"
+        "- \"quiz sobre <tema>\"\n"
+        "- \"me guia por <tema>\"\n"
+        "- \"desafia isso: <ideia>\"\n"
+        "- \"compara os perfis sobre <tema>\"\n"
     )
 
 
