@@ -249,12 +249,15 @@ def test_emitted_skill_ships_study_modes_and_router_points_to_it(tmp_path):
     study_modes = (out / "study_modes.md").read_text(encoding="utf-8")
     assert "Mapa de dependência" in study_modes
 
+    asset_path = Path(__file__).parent.parent / "anything_to_skill" / "templates" / "study_modes.md"
+    assert (out / "study_modes.md").read_bytes() == asset_path.read_bytes()
+
     skill = (out / "SKILL.md").read_text(encoding="utf-8")
     assert "## Modos de estudo" in skill
     assert "study_modes.md" in skill
-    assert "debate" in skill.lower()
-    assert "mapa" in skill.lower()
-    assert "nota" in skill.lower()
+    assert "mapa de <tema>" in skill.lower()
+    assert "debate comigo" in skill.lower()
+    assert "registra uma nota" in skill.lower()
 
 
 def test_study_modes_asset_exists_and_covers_all_modes():

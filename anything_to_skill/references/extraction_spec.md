@@ -50,6 +50,8 @@ conceitos, entidades e relações nomeadas; não invente relações (na dúvida,
   exemplo. Só marque `contradicts` com oposição real entre as fontes. Um `rationale` que
   qualifica um `concept` (ressalva, condição, limite) usa `exemplifies` se ilustra o
   conceito num caso concreto, ou `conceptually_related_to` se só o nuança sem exemplificar.
+  Direção de `depends-on`: em `{"source": X, "target": Y, "relation": "depends-on"}`, Y
+  (target) é o pré-requisito, quem deve ser estudado/entendido antes de X (source).
 - `confidence_score`: `1.0` para `EXTRACTED`; `0.55–0.95` para `INFERRED`; `0.1–0.3`
   para `AMBIGUOUS`.
 - Densidade: extraia um nó por conceito ou justificativa distinta, não um nó por frase.

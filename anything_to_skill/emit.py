@@ -12,6 +12,7 @@ from .chunk import chunk_markdown
 from .resolve import build_anchor_index, nearest_anchor
 from .templates import render_section
 
+# nome parecido com o módulo templates.py importado acima: não crie __init__.py em templates/, risco de sombreamento.
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
