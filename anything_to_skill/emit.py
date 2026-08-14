@@ -12,6 +12,8 @@ from .chunk import chunk_markdown
 from .resolve import build_anchor_index, nearest_anchor
 from .templates import render_section
 
+_TEMPLATES_DIR = Path(__file__).parent / "templates"
+
 
 def _slug(text: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -47,7 +49,7 @@ def _build_description(themes: list[str], subject: str | None, n_sources: int,
 
 def _usage_blocks() -> str:
     """Blocos estáticos na SKILL.md gerada: contrato de fidelidade, protocolo de
-    recuperação por intenção e exemplos de pergunta. Sem LLM."""
+    recuperação por intenção, modos de estudo e exemplos de pergunta. Sem LLM."""
     return (
         "## Idioma\n"
         "Responda no idioma do usuário, nunca no idioma das fontes ou desta skill por "
@@ -72,11 +74,19 @@ def _usage_blocks() -> str:
         "e o `glossary.md`.\n"
         "- Pergunta específica (\"revisa X\", \"o que é X\"): abra a seção do tema e a "
         "âncora citada; se precisar, faça `grep` sobre `content/`.\n\n"
+        "## Modos de estudo\n"
+        "Além de responder, esta skill sabe conduzir mapa de dependência, currículo, "
+        "debate, flashcards, cobertura cruzada, insights e notas Zettelkasten. O "
+        "protocolo de cada um está em `study_modes.md`; leia antes de executar qualquer "
+        "um deles.\n\n"
         "## Exemplos de pergunta\n"
         "- \"me ensina <tema>\"\n"
         "- \"revisa <tema>\"\n"
         "- \"em que ordem estudo <tema>\"\n"
         "- \"me testa sobre <tema>\"\n"
+        "- \"me mostra o mapa de <tema>\"\n"
+        "- \"debate comigo sobre <tema>\"\n"
+        "- \"registra uma nota sobre <tema>\"\n"
     )
 
 
@@ -137,6 +147,9 @@ def emit_skill(graph_path: Path, sources: list[Source],
     (out_dir / ".graph" / "anchors.json").write_text(
         json.dumps(anchor_index, indent=2, ensure_ascii=False),
         encoding="utf-8")
+
+    # 2b. study_modes.md: protocolo dos modos de estudo, copia verbatim
+    shutil.copy2(_TEMPLATES_DIR / "study_modes.md", out_dir / "study_modes.md")
 
     # 3. sections/: uma por comunidade, template do perfil dominante
     profile_by_sid = {s.id: (s.profile or "article") for s in sources}

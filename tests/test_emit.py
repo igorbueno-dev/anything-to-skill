@@ -238,6 +238,25 @@ def test_section_cites_block_anchor(tmp_path):
     assert (out / ".graph" / "anchors.json").exists()
 
 
+def test_emitted_skill_ships_study_modes_and_router_points_to_it(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+
+    study_modes = (out / "study_modes.md").read_text(encoding="utf-8")
+    assert "Mapa de dependência" in study_modes
+
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    assert "## Modos de estudo" in skill
+    assert "study_modes.md" in skill
+    assert "debate" in skill.lower()
+    assert "mapa" in skill.lower()
+    assert "nota" in skill.lower()
+
+
 def test_study_modes_asset_exists_and_covers_all_modes():
     asset = (Path(__file__).parent.parent / "anything_to_skill"
              / "templates" / "study_modes.md")
