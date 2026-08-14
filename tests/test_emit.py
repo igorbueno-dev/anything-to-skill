@@ -382,3 +382,33 @@ def test_router_mentions_fase3_4_behaviors(tmp_path):
     assert "o que eu ainda não revisei" in skill.lower() or \
            "o que eu ainda nao revisei" in skill.lower()
     assert "meu progresso" in skill.lower()
+
+
+def test_como_usar_guide_matches_router_examples(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+
+    guide = (out / "COMO_USAR.md").read_text(encoding="utf-8")
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Como usar:" in guide
+    assert "## Instalar" in guide
+    assert "~/.claude/skills/" in guide
+    assert "## Temas cobertos" in guide
+    assert "Few-shot prompting" in guide
+    assert "Pra aprender" in guide
+    assert "Pra praticar" in guide
+    assert "Pra ir mais fundo" in guide
+    assert "Pra acompanhar progresso" in guide
+    assert "claude.ai" not in guide.lower()
+    assert "zip" not in guide.lower()
+
+    import re
+    guide_phrases = re.findall(r'"([^"]+)"', guide)
+    assert len(guide_phrases) >= 10
+    for phrase in guide_phrases:
+        assert phrase in skill, f"frase do guia nao existe no roteador: {phrase}"

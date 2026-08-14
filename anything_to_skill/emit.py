@@ -277,4 +277,51 @@ def emit_skill(graph_path: Path, sources: list[Source],
             src_lines.append(f"  - Temas: {', '.join(temas)}")
     (out_dir / "sources.md").write_text("\n".join(src_lines) + "\n", encoding="utf-8")
 
+    # 6. COMO_USAR.md: guia humano de uso, gerado deterministicamente
+    guide_lines = [
+        f"# Como usar: {skill_name}",
+        "",
+        description,
+        "",
+        "## Instalar",
+        "",
+        f"Mova esta pasta para `~/.claude/skills/{skill_name}/`. Depois disso, a skill "
+        f"dispara sozinha quando sua pergunta bate com um dos temas, ou você chama "
+        f"direto digitando `/{skill_name}`.",
+        "",
+        "## Temas cobertos",
+        "",
+    ]
+    guide_lines += [f"- {t}" for t in themes]
+    guide_lines += [
+        "",
+        "## Como perguntar",
+        "",
+        "**Pra aprender**",
+        "- \"me ensina <tema>\"",
+        "- \"revisa <tema>\"",
+        "- \"em que ordem estudo <tema>\"",
+        "- \"me mostra o mapa de <tema>\"",
+        "",
+        "**Pra praticar**",
+        "- \"me testa sobre <tema>\"",
+        "- \"quiz sobre <tema>\"",
+        "- \"me guia por <tema>\"",
+        "",
+        "**Pra ir mais fundo**",
+        "- \"debate comigo sobre <tema>\"",
+        "- \"desafia isso: <ideia>\"",
+        "- \"compara os perfis sobre <tema>\"",
+        "- \"registra uma nota sobre <tema>\"",
+        "",
+        "**Pra acompanhar progresso**",
+        "- \"continua de onde eu parei\"",
+        "- \"o que eu ainda não revisei\"",
+        "- \"meu progresso\"",
+        "",
+        "Protocolo completo de cada modo em `study_modes.md`.",
+    ]
+    (out_dir / "COMO_USAR.md").write_text(
+        "\n".join(guide_lines) + "\n", encoding="utf-8")
+
     return out_dir
