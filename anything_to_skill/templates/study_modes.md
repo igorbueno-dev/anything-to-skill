@@ -9,14 +9,21 @@ improvisar, a mesma lógica de "não está nas fontes" que rege o resto desta sk
 Gatilho: "mapa", "diagrama", "como os conceitos se conectam", "visão geral".
 Leia `.graph/graph.json`, filtre as arestas com `relation` igual a `depends-on`, monte um
 bloco de diagrama Mermaid (` ```mermaid graph TD `) usando o `label` dos nós, nunca o `id`
-cru. Acima de uns 20 nós no recorte pedido o diagrama fica ilegível: sugira focar num tema
-por vez em vez de despejar o grafo inteiro.
+cru. Desenhe a seta na ordem de estudo, do pré-requisito pro dependente: numa aresta em que
+`source` depends-on `target`, desenhe `target --> source` (quem deve ser estudado primeiro
+é o `target`, então a aresta crua sai invertida no diagrama). Acima de uns 20 nós no
+recorte pedido o diagrama fica ilegível: sugira focar num tema por vez em vez de despejar o
+grafo inteiro. Um nó sem nenhuma aresta `depends-on` tocando ele, nem como source nem como
+target, não tem pré-requisito registrado nem nada que dependa dele: liste esse nó à parte,
+fora do bloco Mermaid, com uma nota curta dizendo que pode ser estudado a qualquer momento.
 
 ## Currículo
 Gatilho: "em que ordem estudo", "por onde começo", "monta um plano".
 Mesma fonte do mapa (arestas `depends-on`), em ordenação topológica. Ciclo é possível (a
 extração é heurística, não garante grafo acíclico): se achar um, avise explicitamente em
-vez de forçar uma ordem falsa, e desempate pelo nó de maior `evidence_weight`.
+vez de forçar uma ordem falsa, e desempate pelo nó de maior `evidence_weight`. Um nó sem
+nenhuma aresta `depends-on` tocando ele não tem pré-requisito registrado: liste-o à parte
+da ordem, com a nota de que pode ser estudado a qualquer momento.
 
 ## Debate
 Gatilho: "debate", "desafia minha ideia", "onde as fontes divergem".
@@ -26,12 +33,16 @@ registrada, diga isso; não invente uma tensão pra manter o modo funcionando.
 
 ## Flashcards
 Gatilho: "flashcards", "me testa rapidinho", "quero revisar".
-Leia `glossary.md`. Pra cada entrada, gere "O que é `<label>`?" e segure a resposta
-(citação + explicação curta) até o usuário tentar responder.
+Leia `glossary.md`. Pra cada entrada do tipo `concept`, gere "O que é `<label>`?". Pra
+entrada do tipo `rationale` (uma afirmação, não um nome de conceito), troque pra "Isso é
+sempre verdade, segundo a fonte: `<label>`?", já que a resposta existe pra trazer a
+nuance/ressalva daquela afirmação. Nos dois casos, segure a resposta (citação + explicação
+curta) até o usuário tentar responder.
 
 ## Cobertura cruzada
 Gatilho: "o que a fonte A cobre que a B não", "compara as fontes".
-Leia `coverage.md` e o índice tema-fonte de `sources.md`. Corpus de fonte única não tem
+Leia `coverage.md` e o índice tema-fonte de `sources.md`. Se `coverage.md` não existir
+nesta skill, use só o índice tema-fonte de `sources.md`. Corpus de fonte única não tem
 comparação possível: diga isso em vez de forçar uma.
 
 ## Insights
