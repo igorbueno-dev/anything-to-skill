@@ -124,11 +124,14 @@ respondidas com citação), `build_skill` aceita os ganchos opcionais `summarize
   protocolo de recuperação e exemplos de pergunta)
 - `study_modes.md` protocolo dos modos de estudo (mapa, currículo, debate, flashcards,
   cobertura cruzada, insights, notas, quiz, modo socrático, desafia minha ideia,
-  comparação entre perfis), referenciado pelo roteador
+  comparação entre perfis, leitura incremental, revisão espaçada, percentual coberto;
+  marco é automático, não um modo que o usuário aciona), referenciado pelo roteador
 - `sections/<tema>.md` uma por tema; `content/{Sn}.md` fonte preservada byte-a-byte
 - `glossary.md`, `sources.md`, `tensions.md` (pares `contradicts`), `coverage.md`,
   `build_report.md`; `cheatsheet.md` só para perfil `technical_book`/`reference`
 - `.graph/` grafo + âncoras; `.qa/` relatórios
+- `.study/` progresso de estudo do usuário (`progress.json`); diferente de `.graph/` e
+  `.qa/`, não é regenerada no rebuild, sobrevive a atualizações do corpus
 - `figures/` só existe se alguma fonte tinha imagem (não é criada vazia)
 
 A pasta gerada é uma skill instalável por si só: mova-a para `~/.claude/skills/` e ela

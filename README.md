@@ -96,7 +96,7 @@ fonte completa):
 | Arquivo/pasta | Papel |
 |---|---|
 | `SKILL.md` | roteador: índice de temas, contrato de citar-ou-recusar e como recuperar (sempre carregado) |
-| `study_modes.md` | protocolo dos modos de estudo (mapa, currículo, debate, flashcards, cobertura cruzada, insights, notas, quiz, modo socrático, desafia minha ideia, comparação entre perfis) |
+| `study_modes.md` | protocolo dos modos de estudo (mapa, currículo, debate, flashcards, cobertura cruzada, insights, notas, quiz, modo socrático, desafia minha ideia, comparação entre perfis, leitura incremental, revisão espaçada, percentual coberto; marco é automático, não um modo que o usuário aciona) |
 | `sections/` | síntese por tema, no template do perfil, com resumo citado no topo |
 | `content/` | texto-fonte completo, **byte-idêntico**: a fonte-verdade |
 | `sources.md` | registro de fontes + índice cruzado tema↔fonte |
@@ -106,6 +106,7 @@ fonte completa):
 | `build_report.md` | números autoritativos do build (páginas, conceitos, temas) |
 | `figures/` | imagens preservadas dos PDFs |
 | `.graph/` · `.qa/` | grafo consultável + âncoras; relatórios de QA, verificação e autoavaliação |
+| `.study/` | progresso de estudo do usuário (`progress.json`); diferente de `.graph/` e `.qa/`, NÃO é regenerada no rebuild, sobrevive a atualizações do corpus |
 
 ## Pontos centrais
 

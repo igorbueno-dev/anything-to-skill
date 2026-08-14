@@ -4,6 +4,7 @@
 # Saídas de build de skills geradas
 .graph/
 .qa/
+.study/
 
 # Python
 __pycache__/

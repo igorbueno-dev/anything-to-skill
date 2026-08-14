@@ -115,10 +115,21 @@ inteiro no início de qualquer modo que se beneficia de saber o que já foi cobe
 qualquer interação que cobre claramente um tema (`me ensina`, quiz completo, sessão
 socrática revelada, flashcards feitos): leia o JSON inteiro, atualize só a entrada do
 tema tocado, grave o JSON inteiro de volta, nunca reescreva do zero. Em `modos_usados`,
-use rótulos curtos e consistentes, um por interação (ex.: `me_ensina`, `mapa`,
-`curriculo`, `debate`, `flashcards`, `cobertura`, `insight`, `nota`, `quiz`, `socratico`,
-`desafio`, `perfis`), preferindo o nome da seção correspondente de study_modes.md em vez
-de inventar um termo novo.
+use rótulos curtos e consistentes, sem duplicar entrada: se o modo já estiver registrado
+pra aquele tema, não adicione de novo, a lista marca quais modos já foram experimentados
+naquele tema, não quantas vezes (ex.: `me_ensina`, `mapa`, `curriculo`, `debate`,
+`flashcards`, `cobertura_cruzada`, `insight`, `nota`, `quiz`, `socratico`, `desafio`,
+`perfis`, `leitura_incremental`, `revisao_espacada`, `percentual`), preferindo o nome da
+seção correspondente de study_modes.md em vez de inventar um termo novo.
+
+Ao contar ou listar temas a partir de `.study/progress.json`, ignore entradas cujo nome
+de tema não aparece mais na tabela de temas do `SKILL.md` atual (o corpus pode ter sido
+reconstruído com temas diferentes); não delete essas entradas do arquivo, só não as
+conte.
+
+Se o arquivo não for JSON válido ao ler, avise o usuário e trate como se fosse
+`{"temas": {}}` para fins de leitura, sem sobrescrever o arquivo corrompido até confirmar
+com o usuário.
 
 ## Leitura incremental
 Gatilho: "vamos por partes", "continua de onde eu parei", "próximo capítulo". Leia
@@ -139,14 +150,16 @@ Gatilho: "o que eu ainda não revisei", "no que eu deveria focar agora". Leia
 `.study/progress.json`, liste os temas com status `nao_iniciado` ou `em_andamento`
 (nunca `revisado`), priorizando pré-requisitos (`depends-on`) de temas já `em_andamento`
 mas não `revisado`. Se tudo estiver `revisado`, diga isso e sugira aprofundar (Insights,
-Debate) em vez de fingir que falta revisar algo.
+Debate) em vez de fingir que falta revisar algo. Diferente de Currículo: Currículo dá a
+ordem de pré-requisito pra começar do zero; Revisão espaçada olha o que já foi tocado
+(`.study/progress.json`) e aponta o que ainda falta amadurecer, faz sentido mesmo depois
+de já ter começado.
 
 ## Percentual coberto
 Gatilho: "quanto eu já cobri", "meu progresso". Conte sobre `.study/progress.json`
-contra o total de temas do roteador (`SKILL.md`): `revisado` conta cheio, `em_andamento`
-conta meio. Relate como fração ou qualitativo ("3 de 7 temas revisados, 2 em
-andamento"), não como número decorado ou gráfico. Arquivo vazio (`{"temas": {}}`) é 0 de
-N, sem erro.
+contra o total de temas do roteador (`SKILL.md`). Relate como qualitativo ("3 de 7 temas
+revisados, 2 em andamento"), não como número decorado ou gráfico. Arquivo vazio
+(`{"temas": {}}`) é 0 de N, sem erro.
 
 ## Marco
 Gatilho: nenhum explícito, é reativo. Sempre que uma atualização de estado faz um tema

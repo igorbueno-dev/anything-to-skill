@@ -312,9 +312,12 @@ def test_study_modes_triggers_are_not_duplicated_across_sections():
         heading = section.splitlines()[0].strip()
         # O gatilho pode se estender por mais de uma linha; captura tudo entre
         # "Gatilho:" e o primeiro fechamento de citacao ou parenteses seguido
-        # de ponto final, que marca o fim da lista de gatilhos da secao.
-        m = re.search(r'Gatilho:\s*(.*?)(?:"\.|\)\.)', section, re.DOTALL)
-        gatilho_text = m.group(1) if m else ""
+        # de ponto final, que marca o fim da lista de gatilhos da secao. Usa
+        # o match inteiro (nao um grupo que para antes do terminador), senao
+        # a ultima frase entre aspas perde a aspa de fechamento e o findall
+        # de baixo nao a reconhece.
+        m = re.search(r'Gatilho:.*?(?:"\.|\)\.)', section, re.DOTALL)
+        gatilho_text = m.group(0) if m else ""
         phrases = re.findall(r'"([^"]+)"', gatilho_text)
         for phrase in phrases:
             if phrase in seen and seen[phrase] != heading:
