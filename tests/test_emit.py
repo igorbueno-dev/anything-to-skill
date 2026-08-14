@@ -236,3 +236,16 @@ def test_section_cites_block_anchor(tmp_path):
     sec = (out / "sections" / "few-shot-prompting.md").read_text(encoding="utf-8")
     assert "[S1-b" in sec
     assert (out / ".graph" / "anchors.json").exists()
+
+
+def test_study_modes_asset_exists_and_covers_all_modes():
+    asset = (Path(__file__).parent.parent / "anything_to_skill"
+             / "templates" / "study_modes.md")
+    assert asset.exists()
+    text = asset.read_text(encoding="utf-8")
+    for heading in ["Mapa de dependência", "Currículo", "Debate", "Flashcards",
+                     "Cobertura cruzada", "Insights", "Notas"]:
+        assert heading in text
+    assert "depends-on" in text
+    assert "tensions.md" in text
+    assert "glossary.md" in text
