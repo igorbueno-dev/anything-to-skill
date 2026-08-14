@@ -118,10 +118,16 @@ prosa de verdade, dedup semântico ou autoavaliação (perguntas geradas do corp
 respondidas com citação), `build_skill` aceita os ganchos opcionais `summarize_fn`,
 `similar_fn`, `qa_gen_fn`/`answer_fn` (veja as assinaturas em `anything_to_skill/build.py`).
 
+Depois do build, leia `OUT/COMO_USAR.md` e mostre o conteúdo dele na sua resposta ao
+usuário, antes de encerrar o turno: é o guia de como instalar e usar a skill que
+acabou de ser gerada, e o usuário deve ver isso de cara, sem precisar abrir a pasta.
+
 ## Saída
 
 - `SKILL.md` roteador (frontmatter `name`/`description`; contrato de citar-ou-recusar,
   protocolo de recuperação e exemplos de pergunta)
+- `COMO_USAR.md` guia humano de instalação e uso da skill, mostrado no chat logo após
+  o build
 - `study_modes.md` protocolo dos modos de estudo (mapa, currículo, debate, flashcards,
   cobertura cruzada, insights, notas, quiz, modo socrático, desafia minha ideia,
   comparação entre perfis, leitura incremental, revisão espaçada, percentual coberto;
