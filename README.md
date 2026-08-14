@@ -174,8 +174,7 @@ anything_to_skill/
   verify.py        traceabilidade + cite-check + nuance + segurança
   references/      schema de extração próprio
 .claude-plugin/    manifesto do plugin e catálogo do marketplace
-skills/            a skill empacotada para o plugin
-SKILL.md           orquestrador da skill
+skills/anything-to-skill/SKILL.md   a skill (orquestrador, carregado pelo plugin)
 tests/             suíte pytest
 ```
 

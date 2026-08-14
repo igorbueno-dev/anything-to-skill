@@ -18,7 +18,7 @@ conceitos, entidades e relações nomeadas; não invente relações (na dúvida,
     {
       "id": "snake_case_unico",
       "label": "Nome legível",
-      "file_type": "concept | rationale | document | paper | image",
+      "file_type": "concept | rationale",
       "source_file": "<nome do arquivo de conteúdo, ex.: S1.md>",
       "source_location": "<S1.md#L{linha} onde o conceito aparece>"
     }
@@ -47,6 +47,12 @@ conceitos, entidades e relações nomeadas; não invente relações (na dúvida,
 - `relation` tipada: use `depends-on` quando um conceito é pré-requisito de outro (a skill
   usa isso para sugerir ordem de estudo) e `contradicts` quando duas afirmações se opõem
   (a skill lista esses pares em `tensions.md`). `defines` e `exemplifies` para definição e
-  exemplo. Só marque `contradicts` com oposição real entre as fontes.
+  exemplo. Só marque `contradicts` com oposição real entre as fontes. Um `rationale` que
+  qualifica um `concept` (ressalva, condição, limite) usa `exemplifies` se ilustra o
+  conceito num caso concreto, ou `conceptually_related_to` se só o nuança sem exemplificar.
 - `confidence_score`: `1.0` para `EXTRACTED`; `0.55–0.95` para `INFERRED`; `0.1–0.3`
   para `AMBIGUOUS`.
+- Densidade: extraia um nó por conceito ou justificativa distinta, não um nó por frase.
+  Um trecho curto (poucos parágrafos) pode gerar só 2-4 nós — não fragmente para parecer
+  mais completo; um corpus grande deve ter mais nós que um pequeno, mas a proporção não é
+  fixa.
