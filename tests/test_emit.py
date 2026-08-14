@@ -365,3 +365,17 @@ def test_study_modes_asset_covers_fase3_4_behaviors():
     assert "nao_iniciado" in text or "não_iniciado" in text
     assert "em_andamento" in text
     assert "revisado" in text
+
+
+def test_router_mentions_fase3_4_behaviors(tmp_path):
+    content = tmp_path / "content"
+    content.mkdir()
+    (content / "S1.md").write_text("# T\n\ntexto\n", encoding="utf-8")
+    sources = [Source(id="S1", title="T", kind="md", origin="/abs/S1.md", profile=None)]
+    out = tmp_path / "skill"
+    emit_skill(_fixture("graph.sample.json"), sources, content, out)
+    skill = (out / "SKILL.md").read_text(encoding="utf-8")
+    assert "continua de onde eu parei" in skill.lower()
+    assert "o que eu ainda não revisei" in skill.lower() or \
+           "o que eu ainda nao revisei" in skill.lower()
+    assert "meu progresso" in skill.lower()

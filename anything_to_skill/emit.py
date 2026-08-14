@@ -78,9 +78,10 @@ def _usage_blocks() -> str:
         "## Modos de estudo\n"
         "Além de responder, esta skill sabe conduzir mapa de dependência, currículo, "
         "debate, flashcards, cobertura cruzada, insights, notas Zettelkasten, quiz, "
-        "modo socrático, desafio de ideias e comparação entre perfis de fonte. O "
-        "protocolo de cada um está em `study_modes.md`; leia antes de executar qualquer "
-        "um deles.\n\n"
+        "modo socrático, desafio de ideias e comparação entre perfis de fonte. Também "
+        "acompanha progresso de estudo por tema: retomar leitura de onde parou, revisão "
+        "espaçada e percentual coberto. O protocolo de cada um está em "
+        "`study_modes.md`; leia antes de executar qualquer um deles.\n\n"
         "## Exemplos de pergunta\n"
         "- \"me ensina <tema>\"\n"
         "- \"revisa <tema>\"\n"
@@ -93,6 +94,9 @@ def _usage_blocks() -> str:
         "- \"me guia por <tema>\"\n"
         "- \"desafia isso: <ideia>\"\n"
         "- \"compara os perfis sobre <tema>\"\n"
+        "- \"continua de onde eu parei\"\n"
+        "- \"o que eu ainda não revisei\"\n"
+        "- \"meu progresso\"\n"
     )
 
 
