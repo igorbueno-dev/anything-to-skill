@@ -114,7 +114,11 @@ inteiro no início de qualquer modo que se beneficia de saber o que já foi cobe
 (leitura incremental, revisão espaçada, percentual coberto, currículo). Escreva no fim de
 qualquer interação que cobre claramente um tema (`me ensina`, quiz completo, sessão
 socrática revelada, flashcards feitos): leia o JSON inteiro, atualize só a entrada do
-tema tocado, grave o JSON inteiro de volta, nunca reescreva do zero.
+tema tocado, grave o JSON inteiro de volta, nunca reescreva do zero. Em `modos_usados`,
+use rótulos curtos e consistentes, um por interação (ex.: `me_ensina`, `mapa`,
+`curriculo`, `debate`, `flashcards`, `cobertura`, `insight`, `nota`, `quiz`, `socratico`,
+`desafio`, `perfis`), preferindo o nome da seção correspondente de study_modes.md em vez
+de inventar um termo novo.
 
 ## Leitura incremental
 Gatilho: "vamos por partes", "continua de onde eu parei", "próximo capítulo". Leia
@@ -124,7 +128,11 @@ temas estão `nao_iniciado`, comece pelo primeiro na ordem do Currículo (pré-r
 `depends-on`) se houver aresta registrada, senão a ordem do roteador. Depois de cobrir um
 pedaço, atualize `nota` e o `status` (`em_andamento` ou `revisado`, a seu critério) antes
 de perguntar se o usuário quer continuar. Tema sem entrada no JSON ainda é tratado como
-`nao_iniciado`, sem erro.
+`nao_iniciado`, sem erro. Se o tema `em_andamento` já não tem conteúdo não coberto (a
+seção inteira já foi tratada segundo a `nota`), marque-o `revisado` e siga direto pro
+próximo tema não iniciado (mesma lógica de escolha de tema do início da seção: ordem do
+Currículo se houver, senão a ordem do roteador), avisando o usuário que está avançando de
+tema.
 
 ## Revisão espaçada
 Gatilho: "o que eu ainda não revisei", "no que eu deveria focar agora". Leia
