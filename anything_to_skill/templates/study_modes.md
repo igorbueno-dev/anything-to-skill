@@ -103,3 +103,47 @@ comparar: diga isso em vez de forçar uma. Diferente de Cobertura cruzada: Cober
 cruzada olha o que cada fonte cobre ou não cobre (presença/ausência de tema);
 Comparação entre perfis olha como fontes de perfis diferentes tratam o mesmo tema
 (diferença de ênfase/formalismo), assumindo que o tema já é coberto por ambas.
+
+## Estado de progresso
+Toda skill gerada tem `.study/progress.json`, criado vazio (`{"temas": {}}`) no build e
+preservado em rebuilds (o build nunca sobrescreve um `progress.json` que já existe). Cada
+tema tem uma entrada opcional com `status` (`nao_iniciado`, `em_andamento`, `revisado`),
+`modos_usados` (lista dos modos já aplicados àquele tema) e `nota` (frase curta livre
+sobre o que foi coberto). Tema ausente do JSON conta como `nao_iniciado`. Leia o arquivo
+inteiro no início de qualquer modo que se beneficia de saber o que já foi coberto
+(leitura incremental, revisão espaçada, percentual coberto, currículo). Escreva no fim de
+qualquer interação que cobre claramente um tema (`me ensina`, quiz completo, sessão
+socrática revelada, flashcards feitos): leia o JSON inteiro, atualize só a entrada do
+tema tocado, grave o JSON inteiro de volta, nunca reescreva do zero.
+
+## Leitura incremental
+Gatilho: "vamos por partes", "continua de onde eu parei", "próximo capítulo". Leia
+`.study/progress.json`. Se houver um tema `em_andamento`, retome dali com um resumo de
+1-2 frases do que já foi coberto (usando a `nota` salva) antes de avançar. Se todos os
+temas estão `nao_iniciado`, comece pelo primeiro na ordem do Currículo (pré-requisito via
+`depends-on`) se houver aresta registrada, senão a ordem do roteador. Depois de cobrir um
+pedaço, atualize `nota` e o `status` (`em_andamento` ou `revisado`, a seu critério) antes
+de perguntar se o usuário quer continuar. Tema sem entrada no JSON ainda é tratado como
+`nao_iniciado`, sem erro.
+
+## Revisão espaçada
+Gatilho: "o que eu ainda não revisei", "no que eu deveria focar agora". Leia
+`.study/progress.json`, liste os temas com status `nao_iniciado` ou `em_andamento`
+(nunca `revisado`), priorizando pré-requisitos (`depends-on`) de temas já `em_andamento`
+mas não `revisado`. Se tudo estiver `revisado`, diga isso e sugira aprofundar (Insights,
+Debate) em vez de fingir que falta revisar algo.
+
+## Percentual coberto
+Gatilho: "quanto eu já cobri", "meu progresso". Conte sobre `.study/progress.json`
+contra o total de temas do roteador (`SKILL.md`): `revisado` conta cheio, `em_andamento`
+conta meio. Relate como fração ou qualitativo ("3 de 7 temas revisados, 2 em
+andamento"), não como número decorado ou gráfico. Arquivo vazio (`{"temas": {}}`) é 0 de
+N, sem erro.
+
+## Marco
+Gatilho: nenhum explícito, é reativo. Sempre que uma atualização de estado faz um tema
+passar para `revisado` pela primeira vez nessa transição, reconheça isso brevemente (uma
+frase) antes de seguir com o resto da resposta. Não é um modo que o usuário aciona; é um
+comportamento anexado aos outros modos quando a condição acontece. Reabrir um tema já
+`revisado` não dispara celebração de novo nem regride o status sem pedido explícito do
+usuário.

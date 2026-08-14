@@ -352,3 +352,16 @@ def test_emit_preserves_existing_progress_json_on_rebuild(tmp_path):
 
     progress = json.loads((out / ".study" / "progress.json").read_text(encoding="utf-8"))
     assert progress == custom
+
+
+def test_study_modes_asset_covers_fase3_4_behaviors():
+    asset = (Path(__file__).parent.parent / "anything_to_skill"
+             / "templates" / "study_modes.md")
+    text = asset.read_text(encoding="utf-8")
+    for heading in ["Estado de progresso", "Leitura incremental",
+                     "Revisão espaçada", "Percentual coberto", "Marco"]:
+        assert heading in text
+    assert ".study/progress.json" in text
+    assert "nao_iniciado" in text or "não_iniciado" in text
+    assert "em_andamento" in text
+    assert "revisado" in text
