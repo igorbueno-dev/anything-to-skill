@@ -292,10 +292,15 @@ def emit_skill(graph_path: Path, sources: list[Source],
         "## Temas cobertos",
         "",
     ]
-    guide_lines += [f"- {t}" for t in themes]
+    if themes:
+        guide_lines += [f"- {t}" for t in themes]
+    else:
+        guide_lines.append("_(nenhum tema nomeado)_")
     guide_lines += [
         "",
         "## Como perguntar",
+        "",
+        "Troque `<tema>` por um dos temas acima, e `<ideia>` pela sua própria ideia.",
         "",
         "**Pra aprender**",
         "- \"me ensina <tema>\"",

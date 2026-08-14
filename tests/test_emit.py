@@ -408,7 +408,13 @@ def test_como_usar_guide_matches_router_examples(tmp_path):
     assert "zip" not in guide.lower()
 
     import re
-    guide_phrases = re.findall(r'"([^"]+)"', guide)
+    guide_phrases = set(re.findall(r'"([^"]+)"', guide))
     assert len(guide_phrases) >= 10
-    for phrase in guide_phrases:
-        assert phrase in skill, f"frase do guia nao existe no roteador: {phrase}"
+
+    # extrai so da secao "## Exemplos de pergunta" do roteador (ultima secao de
+    # _usage_blocks()), nao do SKILL.md inteiro: outras partes do arquivo podem
+    # ter texto entre aspas que nao sao frases de exemplo.
+    router_examples = skill.split("## Exemplos de pergunta", 1)[1]
+    router_phrases = set(re.findall(r'"([^"]+)"', router_examples))
+
+    assert guide_phrases == router_phrases

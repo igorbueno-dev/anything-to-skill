@@ -121,6 +121,9 @@ respondidas com citação), `build_skill` aceita os ganchos opcionais `summarize
 Depois do build, leia `OUT/COMO_USAR.md` e mostre o conteúdo dele na sua resposta ao
 usuário, antes de encerrar o turno: é o guia de como instalar e usar a skill que
 acabou de ser gerada, e o usuário deve ver isso de cara, sem precisar abrir a pasta.
+Antes de colar o conteúdo do guia, diga com suas próprias palavras qual é o caminho
+real da pasta gerada (o `OUT` do passo 3): o guia fala em "mova esta pasta" e, colado
+no chat, esse "esta pasta" só faz sentido se o caminho já tiver sido dito antes.
 
 ## Saída
 
